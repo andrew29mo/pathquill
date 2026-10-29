@@ -8,12 +8,14 @@ mode=sys.argv[1];pointer=ROOT/'results/reboot-pointer.json'
 def save(v):
     out=ROOT/'evidence/reboot.json';out.write_text(json.dumps(v,indent=2)+'\n');out.with_suffix('.html').write_text('<!doctype html><meta charset="utf-8"><pre>'+html.escape(json.dumps(v,indent=2))+'</pre>')
 if mode=='prepare':
+    save(dict(passed=False,status='preparing'))
     tmp=tempfile.mkdtemp(prefix='pathquill-reboot-',dir='/var/tmp');s=Recorder(tmp)
     s.observe(dict(kind='before_reboot',outcome='success'));key=s.incident(dict(endpoints=['sensitive.example']))
-    before=dict(boot=s.boot,epoch=s.epoch,key=key,capture_count=s.db.execute('SELECT count(*) FROM capture').fetchone()[0]);s.close()
+    before=dict(boot=s.boot,epoch=s.epoch,key=key,capture_count=s.db.execute('SELECT count(*) FROM capture').fetchone()[0],capture_sha256=hashlib.sha256(json.dumps(s.db.execute('SELECT id,seq,body FROM capture ORDER BY id,seq').fetchall()).encode()).hexdigest(),source={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ROOT/'pathquill').glob('*.py'))});s.close()
     pointer.write_text(json.dumps(dict(root=tmp,before=before)))
     save(dict(passed=False,status='awaiting_real_VM_reboot',before=before))
 else:
+    save(dict(passed=False,status='recovering'))
     v=json.loads(pointer.read_text());before=v['before'];root=Path(v['root']);out=dict(passed=False,before=before,normal_shutdown=True,power_loss_tested=False)
     try:
         boot=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
@@ -22,16 +24,21 @@ else:
         row=db.execute('SELECT state FROM incidents WHERE id=?',(before['key'],)).fetchone();db.close()
         out['raw_before_recovery']=row[0]
         if row[0]!='CAPTURING':raise RuntimeError('pending state not preserved')
+        for p,d in before['source'].items():
+            if hashlib.sha256((ROOT/p).read_bytes()).hexdigest()!=d:raise RuntimeError('source changed across reboot')
         s=Recorder(root)
         row=s.db.execute('SELECT state,coverage,reason FROM incidents').fetchone()
         if row!=('SEALED','PARTIAL','restart'):raise RuntimeError('wrong recovery')
         if s.db.execute('SELECT count(*) FROM capture').fetchone()[0]!=before['capture_count']:raise RuntimeError('lost capture')
+        digest=hashlib.sha256(json.dumps(s.db.execute('SELECT id,seq,body FROM capture ORDER BY id,seq').fetchall()).encode()).hexdigest()
+        if digest!=before['capture_sha256']:raise RuntimeError('capture bytes changed')
         try:s.finish(before['key'],10000,before['epoch'],10000)
-        except Refused:pass
+        except Refused as exc:
+            if str(exc)!='stale_epoch':raise
         else:raise RuntimeError('stale accepted')
         exported=s.export(before['key'])
         if 'sensitive' in exported['json']:raise RuntimeError('export leaked')
-        s.observe(dict(kind='new_boot'));out.update(passed=True,after_boot=boot,recovery=list(row),capture_preserved=True,stale_rejected=True,export_redacted=True,source={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),ROOT/'tools/reboot.py']});s.close()
-        import shutil;shutil.rmtree(root);pointer.unlink();out['cleanup']=True
+        s.observe(dict(kind='new_boot'));out.update(after_boot=boot,recovery=list(row),capture_preserved=True,stale_rejected=True,export_redacted=True,source={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),ROOT/'tools/reboot.py']});s.close()
+        import shutil;shutil.rmtree(root);pointer.unlink();out['cleanup']=True;out['passed']=True
     except Exception as e:out['error']=type(e).__name__+': '+str(e)
     save(out);sys.exit(0 if out['passed'] else 1)

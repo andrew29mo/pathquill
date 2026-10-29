@@ -3,14 +3,15 @@
   &quot;mvp_qualified&quot;: false,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
-    &quot;pathquill/core.py&quot;: &quot;ee1ab9164a1bd2621628c44140796db7fda8f8e73e5d78e5f20cff82180a7c50&quot;,
-    &quot;pathquill/netlink.py&quot;: &quot;aa6addf1c8e81a4e2504f51528f68840cda93a1bf65c2c8ffd79e07dd7a14af8&quot;,
-    &quot;pathquill/recorder.py&quot;: &quot;b6dad75299b60a35baa1cc260136e459d49d691ffa036569f718f621af743369&quot;,
+    &quot;pathquill/core.py&quot;: &quot;23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb&quot;,
+    &quot;pathquill/netlink.py&quot;: &quot;8d4ea1d400f5b1ebed3cdea418227b5c3c146d191d5cf8da22d8824ca7e72576&quot;,
+    &quot;pathquill/recorder.py&quot;: &quot;ab77179342cc962339d98b4a2dcff5690bbffd7f5fb55ad0263ddd0dde491bf4&quot;,
     &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
     &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
-    &quot;tests/test_netlink.py&quot;: &quot;d1a3b040066837f50b1a09423b0ed5055ed03401d590d277843825d976c2972b&quot;,
-    &quot;tests/test_recorder.py&quot;: &quot;0612c18eae9055e4400798dcf5364dad8e465a65a84b3c40205e2858c5738d80&quot;,
-    &quot;tools/continued.py&quot;: &quot;500cb1cba7a4b28cd9fb36428fac4f0c0388db7ef635604ea31d63fdc8d91328&quot;
+    &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
+    &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
+    &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
+    &quot;tools/continued.py&quot;: &quot;82002685bcd0dcbb0aab52a8159d5cd52904998783551663839f8db714548818&quot;
   },
   &quot;cases&quot;: [
     {
@@ -19,20 +20,20 @@
         {
           &quot;kind&quot;: 18,
           &quot;count&quot;: 2,
-          &quot;start&quot;: 85.436205928,
-          &quot;end&quot;: 85.436272224
+          &quot;start&quot;: 616.948447605,
+          &quot;end&quot;: 616.948526237
         },
         {
           &quot;kind&quot;: 22,
           &quot;count&quot;: 3,
-          &quot;start&quot;: 85.436272516,
-          &quot;end&quot;: 85.436286475
+          &quot;start&quot;: 616.948526529,
+          &quot;end&quot;: 616.94854053
         },
         {
           &quot;kind&quot;: 26,
           &quot;count&quot;: 7,
-          &quot;start&quot;: 85.436286725,
-          &quot;end&quot;: 85.436314852
+          &quot;start&quot;: 616.948540697,
+          &quot;end&quot;: 616.948568491
         }
       ],
       &quot;notification_count&quot;: 5,
@@ -40,7 +41,8 @@
     },
     {
       &quot;name&quot;: &quot;real_TCP_DNS_trigger_with_persistent_prebuffer&quot;,
-      &quot;observations&quot;: 5,
+      &quot;observations&quot;: 3,
+      &quot;dns_independent_capture&quot;: true,
       &quot;passed&quot;: true
     },
     {
@@ -59,5 +61,5 @@
     &quot;Dump data and interleaved notifications are interval evidence, not an atomic current-state reconstruction&quot;,
     &quot;No automatic retention, full daemon/systemd or bounded export-file publication yet&quot;
   ],
-  &quot;tests&quot;: 13
+  &quot;tests&quot;: 22
 }</pre>

@@ -74,3 +74,15 @@ single transaction; failed capacity admission rolls back the new incident.
 Dedicated export file budgets and retention are deferred until a formal file
 export interface exists. Raw local observations stay private; only a fixed
 allowlist can leave the recorder through the current export API.
+
+
+## Reviewed contracts
+
+The continuation review in CONTINUED.md supersedes the initial capacity and
+prebuffer details: total logical payload accounting includes incident metadata,
+ring and capture copies; expired capture merges fail; delete reclaims capture
+rows; same-boot recent prebuffer survives process restart with UNKNOWN coverage.
+Cross-boot data remains historical and is not reused as current prebuffer.
+Read-only dumps require unique request sequences and explicit loss rejection.
+Store directory ownership/private mode and numeric probe endpoints are enforced.
+These are exploration-core contracts, not whole-service qualification.

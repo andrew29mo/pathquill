@@ -1,15 +1,22 @@
 {
   "passed": true,
   "before": {
-    "boot": "7521a102-b55f-40b0-9fcc-aefa1e544550",
-    "epoch": "c814874c-b813-4cde-ad40-f0545bb6c256",
-    "key": "b60ddff7-4a3a-44d2-8162-581074e7f39d",
-    "capture_count": 1
+    "boot": "aafe980f-d4a0-494c-8ca2-2d7d1fb2a642",
+    "epoch": "e2729fa5-aa18-4c2c-88cf-4d0850d00de9",
+    "key": "8c9eb291-3596-4729-a393-a273e39664a9",
+    "capture_count": 1,
+    "capture_sha256": "117a884e9ad14dc7cfa0bf64c8a1dd3e87f9836bb359970c431b1f4326773dea",
+    "source": {
+      "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pathquill/core.py": "23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb",
+      "pathquill/netlink.py": "8d4ea1d400f5b1ebed3cdea418227b5c3c146d191d5cf8da22d8824ca7e72576",
+      "pathquill/recorder.py": "ab77179342cc962339d98b4a2dcff5690bbffd7f5fb55ad0263ddd0dde491bf4"
+    }
   },
   "normal_shutdown": true,
   "power_loss_tested": false,
   "raw_before_recovery": "CAPTURING",
-  "after_boot": "aafe980f-d4a0-494c-8ca2-2d7d1fb2a642",
+  "after_boot": "57264568-ccd4-4b1a-9916-7743e5d79c84",
   "recovery": [
     "SEALED",
     "PARTIAL",
@@ -20,10 +27,10 @@
   "export_redacted": true,
   "source": {
     "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "pathquill/core.py": "ee1ab9164a1bd2621628c44140796db7fda8f8e73e5d78e5f20cff82180a7c50",
-    "pathquill/netlink.py": "aa6addf1c8e81a4e2504f51528f68840cda93a1bf65c2c8ffd79e07dd7a14af8",
-    "pathquill/recorder.py": "b6dad75299b60a35baa1cc260136e459d49d691ffa036569f718f621af743369",
-    "tools/reboot.py": "6d4f8c869c9a58dd69bb5fe8727a76bb689df0e65f286e5222874c5a59326d8f"
+    "pathquill/core.py": "23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb",
+    "pathquill/netlink.py": "8d4ea1d400f5b1ebed3cdea418227b5c3c146d191d5cf8da22d8824ca7e72576",
+    "pathquill/recorder.py": "ab77179342cc962339d98b4a2dcff5690bbffd7f5fb55ad0263ddd0dde491bf4",
+    "tools/reboot.py": "c94ccefa3b726f12a7149e840d5d7d2aafdaf6b705ad1cf41b39e29596264c1c"
   },
   "cleanup": true
 }

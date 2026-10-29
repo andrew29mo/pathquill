@@ -5,7 +5,7 @@ import struct
 class RouteSocket:
     def __init__(self):
         self.socket=socket.socket(socket.AF_NETLINK,socket.SOCK_RAW,0)
-        self.socket.bind((0,1|0x10|0x100|0x40|0x400));self.socket.settimeout(2)
+        self.socket.bind((0,1|0x10|0x100|0x40|0x400));self.socket.settimeout(2);self.sequence=0
     def receive(self):
         data,anc,flags,peer=self.socket.recvmsg(65536)
         if flags&socket.MSG_TRUNC:raise BufferError('netlink_truncated')
@@ -23,7 +23,8 @@ class RouteSocket:
         # Subscribe before issuing any dump; unsolicited events remain evidence.
         result=dict(valid=False,dumps=[],notifications=[])
         try:
-            for seq,kind in enumerate((18,22,26),1):
+            for kind in (18,22,26):
+                self.sequence=getattr(self,'sequence',0)+1;seq=self.sequence
                 start=time.monotonic();payload=bytes(16 if kind==18 else 8 if kind==22 else 12)
                 self.socket.send(struct.pack('IHHII',16+len(payload),kind,0x301,seq,0)+payload)
                 count=0;deadline=time.monotonic()+3
@@ -31,7 +32,9 @@ class RouteSocket:
                     messages=self.receive()
                     done=False
                     for m in messages:
+                        if m['kind']==4:raise BufferError('netlink_overrun')
                         if m['sequence']!=seq:
+                            if m['sequence']!=0:continue  # stale dump reply, not a notification
                             result['notifications'].append(m)
                             if len(result['notifications'])>4096:raise BufferError('notification_budget')
                             continue

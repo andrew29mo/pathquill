@@ -8,7 +8,7 @@ the original revision only; their source fingerprints intentionally differ.
 
 ## Results and boundaries
 
-- 13 identified tests exercise the actual Store, Recorder and RouteSocket code.
+- 22 identified tests exercise the actual Store, Recorder and RouteSocket code.
   Real unprivileged subscribed Netlink dumps collect link/address/route interval
   evidence with interleaved notifications. Interrupted dump and negative DONE
   cases are injected into the formal synchronize method; real kernel ENOBUFS
@@ -57,6 +57,10 @@ python3 tools/reboot.py after
 
 The namespace runner has an outer 60-second worker timeout and finally unmounts
 its filesystems. It creates dummy links only in its private network namespace.
+Store roots must be private directories owned by the service account. Raw DB
+and writer-lock files use mode 0600. The two tmpfs fixtures contain private
+store subdirectories.
+
 Its output is invalidated before starting, so topology/preflight failure cannot
 reuse an old successful result. VM reboot intentionally interrupts the SSH call;
 only the after-phase report proves success. Reboot state is stored under guest
@@ -74,3 +78,33 @@ All mutation paths need consistent degradation handling before service release;
 legacy Store gap/finish/delete are not a full storage-failure interface.
 No wall-clock-step, suspend, power-loss, prolonged overload, WAN, physical media
 or long-term resource qualification is claimed. No project license selected.
+
+## Review corrections
+
+The a097fb8 review found counterexamples missed by the initial 13 tests. Current
+regressions cover expired captures refusing late merges, total payload accounting
+including incident bodies, delete reclaiming capture rows, reuse of same-boot
+prebuffer across process restart, and rejection of public store directories.
+Capacity counts payload bytes only; filesystem allocation is still measured
+separately and is not a hard quota. Expired captures require explicit finish
+before a new incident can be admitted; automatic lifecycle driving remains an
+MVP gate.
+
+Netlink NLMSG_OVERRUN now invalidates the dump before sequence routing. Dump
+request sequences increase across synchronize calls; stale dump replies cannot
+complete a later dump. Tests inject these controls into the formal backend;
+actual kernel overrun remains untested. Synchronization still records interval
+counts/notifications, not a complete decoded reconciled current-state view.
+
+TCP rejects nonnumeric addresses before networking. DNS rejects truncated
+resource records and non-query opcodes; malformed replies produce UNKNOWN and
+cannot trigger a DNS-error incident. The real SERVFAIL test now uses a separate
+Recorder and asserts creation of its own capture. This is not general DNS
+protocol compatibility qualification.
+
+Reboot tooling invalidates its old success before prepare/recovery preflight,
+requires exactly stale_epoch rejection, compares runtime sources before/after
+boot and hashes complete capture tuples rather than relying on counts alone.
+Cleanup must finish before passed=true. The missing-pointer regression verifies
+old success cannot survive a failed run. Normal reboot was repeated for these
+sources; no sudden power-loss claim is made.

@@ -30,10 +30,14 @@ class Inbox:
 class Store:
     def __init__(self,root,slots=32,byte_limit=1048576):
         self.root=Path(root);self.root.mkdir(mode=0o700,parents=True,exist_ok=True)
+        st=self.root.lstat()
+        if self.root.is_symlink() or st.st_uid!=os.getuid() or st.st_mode&0o077:raise Refused('private_owned_directory_required')
         self.lock=open(self.root/'writer.lock','a')
         try:fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:self.lock.close();raise Refused('writer_busy')
+        os.chmod(self.root/'writer.lock',0o600)
         self.db=sqlite3.connect(self.root/'state.db',timeout=.1)
+        os.chmod(self.root/'state.db',0o600)
         self.db.execute('PRAGMA journal_mode=DELETE');self.db.execute('PRAGMA synchronous=FULL')
         self.db.executescript('CREATE TABLE IF NOT EXISTS incidents(id TEXT PRIMARY KEY, first REAL,end REAL,state TEXT,coverage TEXT,reason TEXT,recovered INTEGER,body TEXT); CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT);')
         self.epoch=str(uuid.uuid4());self.slots=slots;self.limit=byte_limit;self.degraded=False

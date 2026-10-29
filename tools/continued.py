@@ -28,14 +28,17 @@ if sys.argv[1]=='worker':
             check(s.probe('127.0.0.1',port)=='refused','real refused failed')
             s.observe(dict(kind='after_trigger'))
             check(s.db.execute('SELECT count(*) FROM incidents').fetchone()[0]==1,'no triggered capture');check(s.db.execute('SELECT count(*) FROM capture').fetchone()[0]>=3,'missing persisted prebuffer')
+            tcp_observations=s.db.execute('SELECT count(*) FROM capture').fetchone()[0]
+            s.close();s=Recorder(Path(tmp)/'dns')
             udp=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);udp.bind(('127.0.0.1',0))
             def answer():
                 data,peer=udp.recvfrom(4096);udp.sendto(data[:2]+b'\x81\x82'+data[4:],peer)
             thread=threading.Thread(target=answer);thread.start();check(s.dns('127.0.0.1',udp.getsockname()[1])=='dns_error','DNS failure not recognized');thread.join(2);udp.close()
-            r['cases'].append(dict(name='real_TCP_DNS_trigger_with_persistent_prebuffer',observations=s.db.execute('SELECT count(*) FROM capture').fetchone()[0],passed=True));s.close()
+            check(s.db.execute("SELECT count(*) FROM incidents WHERE state='CAPTURING'").fetchone()[0]==1 and s.db.execute('SELECT count(*) FROM incidents').fetchone()[0]==1,'DNS did not independently create capture')
+            r['cases'].append(dict(name='real_TCP_DNS_trigger_with_persistent_prebuffer',observations=tcp_observations,dns_independent_capture=True,passed=True));s.close()
         for mode in ('full','readonly'):
             path=Path(sys.argv[3])/mode
-            s=Recorder(path)
+            s=Recorder(path/'store')
             if mode=='full':
                 fill=path/'filler'
                 with open(fill,'wb',buffering=0) as f:
@@ -45,11 +48,11 @@ if sys.argv[1]=='worker':
             else:
                 s.close()
                 subprocess.run(['sudo','mount','-o','remount,ro',str(path)],check=True)
-                try:Recorder(path)
+                try:Recorder(path/'store')
                 except (OSError,__import__('sqlite3').Error):pass
                 else:raise RuntimeError('readonly startup accepted')
                 subprocess.run(['sudo','mount','-o','remount,rw',str(path)],check=True)
-                s=Recorder(path);s.observe(dict(kind='repaired'));s.close()
+                s=Recorder(path/'store');s.observe(dict(kind='repaired'));s.close()
                 r['cases'].append(dict(name='filesystem_readonly_startup_refusal',repair_reopen=True,passed=True));continue
             failed=False
             try:s.observe(dict(kind='fault'))
@@ -61,7 +64,7 @@ if sys.argv[1]=='worker':
             s.close()
             if mode=='full':fill.unlink()
             else:subprocess.run(['sudo','mount','-o','remount,rw',str(path)],check=True)
-            s=Recorder(path);s.observe(dict(kind='repaired'));s.close()
+            s=Recorder(path/'store');s.observe(dict(kind='repaired'));s.close()
             r['cases'].append(dict(name='filesystem_'+mode,repair_reopen=True,passed=True))
         r['passed']=True
     except Exception as e:r['error']=type(e).__name__+': '+str(e).replace(str(ROOT),'<checkout>')
