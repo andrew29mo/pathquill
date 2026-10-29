@@ -83,7 +83,8 @@ There is no hidden truncate, automatic rollover or same-path reset.
    identity, checks SQLite quick_check and known published contents, and refuses
    unknown entries. It preserves all original raw data/history in place.
 5. Explicitly create a different, non-existing store path using that archive.
-   It validates the receipt again, creates an independent store ID and records
+   It requires no pending archive receipt and validates the completed receipt
+   again, creates an independent store ID and records
    parent_store for local provenance. It copies no sources, requests or references.
 6. Start the daemon on the new root and use its fresh status/epoch. Update any
    future service configuration explicitly; automatic service reconfiguration
@@ -165,3 +166,20 @@ No VM reboot, sudden power loss, zero-gap boot, kernel short-write, long-term
 rollover, independent backup restore, reader-lease safety or formal systemd
 installation qualification is claimed. GitHub stays Private, with no license
 selected. mvp_qualified remains false until the separate deployment acceptance.
+
+## Retirement-stage review corrections
+
+Retirement verification now checks both package reservation and the actual
+snapshot bytes/digest during the stopped first-unlink boundary, and requires both
+credits to be released only after completion. The final-transaction SQLite-failure
+regression also requires the original snapshot to remain readable and charged.
+
+Fresh-store handoff now rejects an existing .archive.pending even alongside a
+valid receipt, creating no destination and preserving pending bytes. Run
+store-archive to reconcile a known complete linked pending receipt; mismatching
+pending data still requires operator investigation. The VM fixture verifies a
+structured handoff refusal and preservation, then explicitly removes only its
+own injected marker before continuing; that removal is not product behavior.
+Old archive paths must be absolute before canonical path checks. Tests also
+require the created store identity to survive reopening and rejected old requests
+to leave its fresh history empty. No global cross-store deduplication is implied.

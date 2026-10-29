@@ -6,24 +6,24 @@
     &quot;release&quot;: &quot;6.8.0-117-generic&quot;,
     &quot;machine&quot;: &quot;aarch64&quot;,
     &quot;python&quot;: &quot;3.12.3&quot;,
-    &quot;utc&quot;: &quot;2026-10-29T07:06:56.501715+00:00&quot;
+    &quot;utc&quot;: &quot;2026-10-29T07:36:25.063878+00:00&quot;
   },
   &quot;cases&quot;: [
     {
       &quot;name&quot;: &quot;real_address_add_delete_and_stale_result&quot;,
       &quot;notifications&quot;: 2,
       &quot;stale&quot;: 1,
-      &quot;add_observation_seconds&quot;: 0.041962605000662734,
+      &quot;add_observation_seconds&quot;: 0.029502090001187753,
       &quot;stale_health_unchanged&quot;: true,
       &quot;stale_not_persisted&quot;: true,
-      &quot;mutation_begin&quot;: 15603.446937411,
-      &quot;changed_observed&quot;: 15603.488899933,
+      &quot;mutation_begin&quot;: 17371.769553916,
+      &quot;changed_observed&quot;: 17371.799055714,
       &quot;slow_result&quot;: {
         &quot;target&quot;: 1,
         &quot;generation&quot;: 1,
         &quot;outcome&quot;: &quot;timeout&quot;,
-        &quot;start&quot;: 15603.383189078,
-        &quot;end&quot;: 15604.884224971,
+        &quot;start&quot;: 17371.704348766,
+        &quot;end&quot;: 17373.205340305,
         &quot;stale&quot;: true
       },
       &quot;writer_progress_delta&quot;: 22,
@@ -33,14 +33,14 @@
     },
     {
       &quot;name&quot;: &quot;real_failure_recovery_and_committed_seal&quot;,
-      &quot;committed&quot;: 1733,
+      &quot;committed&quot;: 1810,
       &quot;window_seconds&quot;: 30.0,
-      &quot;persisted_barrier_sequence&quot;: 1733,
-      &quot;persisted_barrier_after_deadline&quot;: 0.05563005000112753,
-      &quot;sealed_observed_after_deadline&quot;: 0.06931115000043064,
+      &quot;persisted_barrier_sequence&quot;: 1810,
+      &quot;persisted_barrier_after_deadline&quot;: 0.013502484001946868,
+      &quot;sealed_observed_after_deadline&quot;: 0.02152538500013179,
       &quot;incidents&quot;: [
         {
-          &quot;id&quot;: &quot;f4e12a4b-c2c1-46a9-bde4-40469a370bab&quot;,
+          &quot;id&quot;: &quot;9c57675e-5330-42ff-ac7a-44b11fd942bc&quot;,
           &quot;state&quot;: &quot;SEALED&quot;,
           &quot;coverage&quot;: &quot;UNKNOWN&quot;,
           &quot;recovered&quot;: true
@@ -59,10 +59,10 @@
     &quot;DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim&quot;,
     &quot;No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification&quot;
   ],
-  &quot;tests&quot;: 97,
+  &quot;tests&quot;: 100,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
-    &quot;pathquill/archive.py&quot;: &quot;9025e6fa828785ba469d58c0ad4280f4057079b8e62497a56d9ce962c684b9b2&quot;,
+    &quot;pathquill/archive.py&quot;: &quot;3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e&quot;,
     &quot;pathquill/cli.py&quot;: &quot;bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed&quot;,
     &quot;pathquill/core.py&quot;: &quot;adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40&quot;,
     &quot;pathquill/daemon.py&quot;: &quot;81dc0a7f846cb599f593d10e181a267ba0d6a41fbab201604948a83ce1a56180&quot;,
@@ -84,7 +84,7 @@
     &quot;tests/test_publication_recovery.py&quot;: &quot;70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f&quot;,
     &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
     &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
-    &quot;tests/test_retirement.py&quot;: &quot;b9a525da42853da984a8ef65452fd342d75fd259ae42a376527f2d8a1df753b9&quot;,
+    &quot;tests/test_retirement.py&quot;: &quot;938784ea1b4c69d6a11788f26bdc3c2bae0d5b4bde01da7ab347caeba05da31f&quot;,
     &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
     &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
     &quot;tools/milestone1.py&quot;: &quot;c93b2b53fda546f89f46d82b7f25987715a9514cc890a25858bb59f5448456a2&quot;,

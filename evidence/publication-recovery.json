@@ -4,7 +4,7 @@
   "cases": [
     {
       "name": "rename_completed_adopted_without_rewrite",
-      "restart_ready_seconds": 0.06824442099969019,
+      "restart_ready_seconds": 0.08442728199952398,
       "files_unchanged": true,
       "passed": true
     },
@@ -28,7 +28,7 @@
     "system": "Linux",
     "release": "6.8.0-117-generic",
     "python": "3.12.3",
-    "utc": "2026-10-29T07:06:56.271594+00:00"
+    "utc": "2026-10-29T07:36:23.983152+00:00"
   },
   "limits": [
     "Test-only wrapper pauses at formal rename/unlink boundaries, then parent sends actual SIGKILL; not an unmodified-launch timing experiment",
@@ -37,10 +37,10 @@
     "Partial writes and fsync/SQLite failure are unit-injected, not physical disk failure",
     "Private owned store; malicious same-UID mutation and published-artifact deletion/reader leases remain outside scope"
   ],
-  "tests": 97,
+  "tests": 100,
   "source": {
     "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "pathquill/archive.py": "9025e6fa828785ba469d58c0ad4280f4057079b8e62497a56d9ce962c684b9b2",
+    "pathquill/archive.py": "3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e",
     "pathquill/cli.py": "bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed",
     "pathquill/core.py": "adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40",
     "pathquill/daemon.py": "81dc0a7f846cb599f593d10e181a267ba0d6a41fbab201604948a83ce1a56180",
@@ -62,7 +62,7 @@
     "tests/test_publication_recovery.py": "70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f",
     "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
     "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
-    "tests/test_retirement.py": "b9a525da42853da984a8ef65452fd342d75fd259ae42a376527f2d8a1df753b9",
+    "tests/test_retirement.py": "938784ea1b4c69d6a11788f26bdc3c2bae0d5b4bde01da7ab347caeba05da31f",
     "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
     "tests/test_supervision.py": "7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39",
     "tools/publication_recovery.py": "aced1e2956672dd54c87f4ae4115afd5a65b84e58006ff36e0abd301f95c42bb",

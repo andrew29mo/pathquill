@@ -110,9 +110,11 @@ def archive_store(root,store):
 def new_store(root,archive,store):
     root=Path(root)
     if not root.is_absolute():raise Refused('absolute_path_required')
+    if not Path(archive).is_absolute():raise Refused('absolute_archive_path_required')
     root=root.resolve();archive=Path(archive).resolve()
     if root==archive or archive in root.parents or root in archive.parents:raise Refused('distinct_store_path_required')
     with locked_archive(archive,store) as (old,db):
+        if os.path.lexists(old/'.archive.pending'):raise Refused('archive_requires_reconciliation')
         if read_file(old/'archive.json',65536)!=receipt_bytes(old,db,store):raise Refused('archive_receipt_mismatch')
         try:root.mkdir(mode=0o700)
         except FileExistsError:raise Refused('new_store_exists') from None

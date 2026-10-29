@@ -5,6 +5,7 @@
     {
       &quot;name&quot;: &quot;retirement_unlink_crash_keeps_credit_then_recovers&quot;,
       &quot;reserved_bytes_while_incomplete&quot;: 820,
+      &quot;reserved_snapshot_bytes_while_incomplete&quot;: 190,
       &quot;remaining_files_at_kill&quot;: 2,
       &quot;passed&quot;: true
     },
@@ -22,6 +23,7 @@
       &quot;history_used&quot;: 32,
       &quot;new_store_initial_remaining&quot;: 32,
       &quot;old_database_unchanged&quot;: true,
+      &quot;pending_receipt_handoff_refused&quot;: true,
       &quot;passed&quot;: true
     }
   ],
@@ -29,7 +31,7 @@
     &quot;system&quot;: &quot;Linux&quot;,
     &quot;release&quot;: &quot;6.8.0-117-generic&quot;,
     &quot;python&quot;: &quot;3.12.3&quot;,
-    &quot;utc&quot;: &quot;2026-10-29T07:06:57.071429+00:00&quot;
+    &quot;utc&quot;: &quot;2026-10-29T07:36:24.297271+00:00&quot;
   },
   &quot;limits&quot;: [
     &quot;Synthetic source seeded through product API; actual formal daemon and subprocess CLI&quot;,
@@ -39,10 +41,10 @@
     &quot;No automatic rollover, unseal, external-reader lease or automated retention; copy artifacts before explicit retirement&quot;,
     &quot;Interrupted partial archive receipts/new-store initialization fail closed; no automated repair promised&quot;
   ],
-  &quot;tests&quot;: 97,
+  &quot;tests&quot;: 100,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
-    &quot;pathquill/archive.py&quot;: &quot;9025e6fa828785ba469d58c0ad4280f4057079b8e62497a56d9ce962c684b9b2&quot;,
+    &quot;pathquill/archive.py&quot;: &quot;3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e&quot;,
     &quot;pathquill/cli.py&quot;: &quot;bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed&quot;,
     &quot;pathquill/core.py&quot;: &quot;adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40&quot;,
     &quot;pathquill/daemon.py&quot;: &quot;81dc0a7f846cb599f593d10e181a267ba0d6a41fbab201604948a83ce1a56180&quot;,
@@ -64,10 +66,10 @@
     &quot;tests/test_publication_recovery.py&quot;: &quot;70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f&quot;,
     &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
     &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
-    &quot;tests/test_retirement.py&quot;: &quot;b9a525da42853da984a8ef65452fd342d75fd259ae42a376527f2d8a1df753b9&quot;,
+    &quot;tests/test_retirement.py&quot;: &quot;938784ea1b4c69d6a11788f26bdc3c2bae0d5b4bde01da7ab347caeba05da31f&quot;,
     &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
     &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
-    &quot;tools/retention.py&quot;: &quot;6609c325ec420a88c6b22b8e5af13d1e69dd5af9e8a361f2d43bf3ec5b529c10&quot;,
+    &quot;tools/retention.py&quot;: &quot;4cbf2b0b28fe686efb7b74760ac3c6675edd1ede52bf43af2b2cf2a93e3955d3&quot;,
     &quot;tools/recovery_daemon.py&quot;: &quot;1ea371d56e56d2e132c0fabfdd7b2348b49960dad8b4fa1bb2ca664df4fdf522&quot;,
     &quot;tools/supervision.py&quot;: &quot;e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1&quot;,
     &quot;pyproject.toml&quot;: &quot;a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123&quot;
