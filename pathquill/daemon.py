@@ -102,7 +102,7 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
             if r.degraded and state.status!='STORAGE_ERROR':
                 state.invalidate('storage_error');state.status='STORAGE_ERROR';health.clear();checked.clear()
             if not r.degraded and state.status!='RECORDING' and now-last_retry>=1:
-                rebuild();last_retry=boottime();last_gc=boottime()
+                rebuild();last_retry=boottime()
             for i,(future,generation,started) in list(pending.items()):
                 if not future.done():continue
                 del pending[i];next_run[i]=now+targets[i]['interval']

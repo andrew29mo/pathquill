@@ -108,3 +108,8 @@ the exact VM overlap and persisted barrier checks and remaining test limits.
 no-retention behavior. ManagedRecorder separates bounded control progress from
 data payload admission, conservatively anchors retention, and performs atomic
 eligibility-checked GC. Export-file lifecycle remains deferred.
+
+
+The P0 review separates GC scheduling from failed reconstruction retries and
+requires parent-owned success publication after worker/group/mount cleanup.
+See CAPACITY.md for the formal-loop failure injection and retained-data checks.

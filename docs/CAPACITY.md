@@ -50,8 +50,9 @@ unknown); it can
 extend retention but cannot shorten it. Recovery still seals old active captures
 PARTIAL/restart. Wall-clock changes are not used for expiry.
 
-Automatic GC runs once per second and transactionally rechecks SEALED state,
-current-boot expiry and absence of a hold. It deletes capture, incident and
+Automatic GC uses an independent one-second schedule and transactionally rechecks SEALED state,
+current-boot expiry and absence of a hold. Synchronous reconstruction or I/O can
+delay an attempt; this is not a real-time scheduling guarantee. It deletes capture, incident and
 lifetime rows together. Explicit operator delete may remove an unexpired sealed
 incident but also refuses active or held incidents. All administrative mutations
 require the current epoch. A UUID hold token protects one incident; holds survive
@@ -75,7 +76,7 @@ users access; the Unix socket remains private to the service account.
 In a disposable Linux VM, with Python 3.12+, iproute2, sudo, mount and unshare:
 
 ```sh
-sudo timeout 95 unshare --mount --net --propagation private python3 tools/capacity.py orchestrate
+sudo timeout 100 unshare --mount --net --propagation private python3 tools/capacity.py orchestrate
 ```
 
 The worker drops to UID 501. [JSON](../evidence/capacity.json) and
@@ -108,3 +109,30 @@ boundary: end-first could be 29.999999999999545 while end equals first+30. The
 assertion now directly compares the stored deadline with first+30, and a regression
 still rejects sealing one microsecond before that deadline. This changes no
 service deadline or observation window.
+
+## P0 review corrections
+
+The b8d2174 review found GC starvation: repeated failed state rebuilds reset the
+GC timer before it could expire. The retry path now updates only its own timer.
+A controlled failure-injection case runs the formal serve loop with rebuilds
+forced to remain DEGRADED. It seeds an expired incident, an expired held incident
+and an unexpired incident through the product API, then admits an active capture
+at startup. It requires expired unheld data to disappear while the other three
+classes remain. This is an injected reconstruction failure, not real kernel churn.
+
+The capacity runner now accepts only its documented orchestrator entry point;
+its internal worker requires complete parameters. The orchestrator requires all
+four named cases. The worker writes a private intermediate report; only after
+worker success and mount cleanup does the parent publish the final JSON/HTML.
+A fresh run first invalidates prior success. A separate process group owns the
+worker and its descendants, with TERM/KILL cleanup on every exit, including timeout.
+A bounded busy-only unmount retry handles asynchronous FD release without force
+unmounting. Tests challenge invalid-mode stale success, descendant heartbeat
+continuation after timeout, permanent busy, and nonretryable permission errors.
+
+The full-data case now directly reads the incident deadline and durable control
+progress after sealing, rather than inferring the control path from SEALED alone.
+It checks deadline >= first+30 and committed control progress >= deadline. Same
+boot SIGKILL/restart must preserve the exact stored boot/anchor/duration tuple.
+The separate ordinary-network regression still checks the data-progress path.
+Neither path establishes power-loss or real-time guarantees.
