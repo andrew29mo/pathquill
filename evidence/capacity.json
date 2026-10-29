@@ -7,12 +7,12 @@
       "before": {
         "loss": 2,
         "refusals": 0,
-        "progress": 13516.438086222,
+        "progress": 14534.509971825,
         "mode": "CAPACITY",
-        "logical_bytes": 4067,
+        "logical_bytes": 4029,
         "data_limit": 4096,
-        "prebuffer_oldest": 13516.075611423,
-        "prebuffer_latest": 13516.409314943,
+        "prebuffer_oldest": 14534.143285971,
+        "prebuffer_latest": 14534.479342266,
         "ring_limit": 1024,
         "incidents": 1,
         "holds": [],
@@ -20,18 +20,18 @@
         "free_pages": 0
       },
       "sealed_coverage": "PARTIAL",
-      "window_seconds": 30.687373566999668,
-      "control_progress_after_deadline": 0.012369533000310184,
+      "window_seconds": 30.633739732000322,
+      "control_progress_after_deadline": 0.01239901699955226,
       "same_boot_anchor_preserved": true,
       "after_gc": {
-        "loss": 2199,
+        "loss": 2194,
         "refusals": 0,
-        "progress": 13549.583033238,
+        "progress": 14567.636250475,
         "mode": "CAPACITY",
         "logical_bytes": 937,
         "data_limit": 4096,
-        "prebuffer_oldest": 13546.626774562,
-        "prebuffer_latest": 13549.468683985,
+        "prebuffer_oldest": 14564.652669315,
+        "prebuffer_latest": 14567.460390949,
         "ring_limit": 1024,
         "incidents": 0,
         "holds": [],
@@ -67,7 +67,7 @@
     "system": "Linux",
     "release": "6.8.0-117-generic",
     "python": "3.12.3",
-    "utc": "2026-10-29T06:32:09.407620+00:00"
+    "utc": "2026-10-29T06:49:07.598695+00:00"
   },
   "limits": [
     "Logical budgets, not filesystem quota or guaranteed writes on a physically full filesystem",
@@ -75,7 +75,7 @@
     "This runner exercises hold/release primitives; package publication is verified separately",
     "Cross-boot reanchoring is unit-tested with altered metadata, not a real VM reboot"
   ],
-  "tests": 85,
+  "tests": 87,
   "source": {
     "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "pathquill/cli.py": "394a7bc92840d73cea23aa63a09f15078921491214060eacd4af32c0892ddfe9",
@@ -96,7 +96,7 @@
     "tests/test_managed.py": "5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26",
     "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
     "tests/test_publication.py": "38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a",
-    "tests/test_publication_recovery.py": "52f7f10e81868c9a8817ef94d98553435cd3725b6513eef2617a943ecb4014cd",
+    "tests/test_publication_recovery.py": "70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f",
     "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
     "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
     "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",

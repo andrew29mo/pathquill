@@ -128,3 +128,15 @@ for the final source version, but their scopes remain separate.
 No VM reboot, sudden power loss, zero-gap boot, external reader lease, automatic
 published-artifact retention, production deployment or long-term qualification is
 claimed. GitHub remains Private and no project license has been selected.
+
+## P0-4c review corrections
+
+The original fsync-interruption test left a fully written first file, not a
+short file. Its name now describes that narrower boundary. Additional unit
+fault injection interrupts stream.write after flushing either a strict nonempty
+prefix or zero bytes. Tests first require the actual file to be shorter than
+its expected JSON, then verify restart cleanup, retained reservation after
+unlink, and completion after another reopen. These are controlled Python write
+interruptions, not kernel short-write, VM reboot or power-loss qualification.
+A separate assertion attempts a new publication while old cleanup is pending;
+freed filesystem bytes must not bypass the unresolved-publication gate.

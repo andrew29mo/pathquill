@@ -6,41 +6,41 @@
     "release": "6.8.0-117-generic",
     "machine": "aarch64",
     "python": "3.12.3",
-    "utc": "2026-10-29T06:32:09.695403+00:00"
+    "utc": "2026-10-29T06:49:07.429683+00:00"
   },
   "cases": [
     {
       "name": "real_address_add_delete_and_stale_result",
       "notifications": 2,
       "stale": 1,
-      "add_observation_seconds": 0.05050026900062221,
+      "add_observation_seconds": 0.08091218499976094,
       "stale_health_unchanged": true,
       "stale_not_persisted": true,
-      "mutation_begin": 13515.922490992,
-      "changed_observed": 13515.972991052,
+      "mutation_begin": 14533.694078646,
+      "changed_observed": 14533.774990582,
       "slow_result": {
         "target": 1,
         "generation": 1,
         "outcome": "timeout",
-        "start": 13515.865810892,
-        "end": 13517.367057028,
+        "start": 14533.627337178,
+        "end": 14535.133033687,
         "stale": true
       },
-      "writer_progress_delta": 1,
+      "writer_progress_delta": 22,
       "independent_links_addresses": true,
       "independent_route_count": 10,
       "passed": true
     },
     {
       "name": "real_failure_recovery_and_committed_seal",
-      "committed": 1760,
+      "committed": 1791,
       "window_seconds": 30.0,
-      "persisted_barrier_sequence": 1760,
-      "persisted_barrier_after_deadline": 0.048340649000238045,
-      "sealed_observed_after_deadline": 0.056533107001087046,
+      "persisted_barrier_sequence": 1791,
+      "persisted_barrier_after_deadline": 0.028532006001114496,
+      "sealed_observed_after_deadline": 0.03470019900123589,
       "incidents": [
         {
-          "id": "06f8f6f5-d430-4a32-9c4f-09e635e4d13b",
+          "id": "deb61a0e-b58f-4f81-9b7a-39dc1799d7c4",
           "state": "SEALED",
           "coverage": "UNKNOWN",
           "recovered": true
@@ -59,7 +59,7 @@
     "DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim",
     "No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification"
   ],
-  "tests": 85,
+  "tests": 87,
   "source": {
     "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "pathquill/cli.py": "394a7bc92840d73cea23aa63a09f15078921491214060eacd4af32c0892ddfe9",
@@ -80,7 +80,7 @@
     "tests/test_managed.py": "5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26",
     "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
     "tests/test_publication.py": "38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a",
-    "tests/test_publication_recovery.py": "52f7f10e81868c9a8817ef94d98553435cd3725b6513eef2617a943ecb4014cd",
+    "tests/test_publication_recovery.py": "70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f",
     "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
     "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
     "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",

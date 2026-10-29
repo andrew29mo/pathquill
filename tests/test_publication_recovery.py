@@ -2,7 +2,7 @@ import errno
 import tempfile
 import unittest
 from unittest.mock import patch
-from pathquill.publication import PublicationRecorder,rename_new
+from pathquill.publication import PublicationRecorder,rename_new,package_bodies
 from pathquill.core import Refused
 
 class RecoveryTests(unittest.TestCase):
@@ -33,11 +33,14 @@ class RecoveryTests(unittest.TestCase):
         self.reopen();self.assertEqual(self.r.publication_status('work')['state'],'CLEANUP_PENDING')
         self.r.advance_publications();self.assertEqual(len(list(stage.iterdir())),2)
         self.assertEqual(self.r.publication_status('work')['bytes'],reserved)
+        self.r.request_export('other',self.key,60,self.r.epoch)
+        self.r.advance_exports();self.r.advance_exports()
+        with self.assertRaisesRegex(Refused,'publication_requires_reconciliation'):self.r.publish_export('other',self.r.epoch)
         self.reopen()
         with self.assertRaisesRegex(Refused,'stale_epoch'):self.r.cancel_export('work',old)
         self.drain();self.assertFalse(stage.exists());self.assertEqual(self.r.export_status('work')['state'],'INTERRUPTED')
         with self.assertRaises(Refused):self.r.publish_export('work',self.r.epoch)
-    def test_partial_written_file_recognized_by_owned_inode(self):
+    def test_whole_first_file_before_fsync_is_recoverable(self):
         with patch('pathquill.publication.os.fsync',side_effect=SystemExit):
             with self.assertRaises(SystemExit):self.r.publish_export('work',self.r.epoch)
         self.reopen();self.drain()
@@ -93,3 +96,32 @@ class RecoveryTests(unittest.TestCase):
         final=self.r.root/'packages'/self.r.publication_status('work')['package'];(final/'index.html').unlink()
         with self.assertRaisesRegex(Refused,'reconciliation'):self.r.publish_export('work',self.r.epoch)
         self.assertEqual(self.r.publication_status('work')['state'],'BLOCKED')
+
+    def short_write_recovery(self,empty=False):
+        import os
+        original=os.fdopen
+        expected=package_bodies(self.r.db.execute("SELECT snapshot FROM exports WHERE request='work'").fetchone()[0])['snapshot.json']
+        count=0 if empty else len(expected)//2
+        class InterruptedWriter:
+            def __init__(self,stream):self.stream=stream
+            def __enter__(self):return self
+            def __exit__(self,*args):self.stream.close()
+            def write(self,data):
+                self.stream.write(data[:count]);self.stream.flush()
+                raise SystemExit('injected short write')
+        def partial_open(fd,*args,**kwargs):return InterruptedWriter(original(fd,*args,**kwargs))
+        with patch('pathquill.publication.os.fdopen',side_effect=partial_open):
+            with self.assertRaises(SystemExit):self.r.publish_export('work',self.r.epoch)
+        status=self.r.publication_status('work');stage=self.r.root/'packages'/('.stage-'+status['package'])
+        self.assertEqual({p.name for p in stage.iterdir()},{'snapshot.json'})
+        actual=(stage/'snapshot.json').read_bytes()
+        self.assertEqual(actual,expected[:count]);self.assertLess(len(actual),len(expected))
+        if not empty:self.assertGreater(len(actual),0)
+        reserved=status['bytes'];self.reopen()
+        self.assertEqual(self.r.publication_status('work')['state'],'CLEANUP_PENDING')
+        self.assertEqual(self.r.publication_status('work')['bytes'],reserved)
+        self.r.advance_publications();self.assertFalse((stage/'snapshot.json').exists())
+        self.assertEqual(self.r.publication_status('work')['bytes'],reserved)
+        self.reopen();self.drain();self.assertFalse(stage.exists())
+    def test_strict_short_prefix_write_is_recoverable(self):self.short_write_recovery()
+    def test_empty_short_write_is_recoverable(self):self.short_write_recovery(empty=True)
