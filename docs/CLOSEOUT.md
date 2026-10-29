@@ -158,7 +158,7 @@ No service boot enablement, service VM-reboot recovery, abrupt power loss,
 zero-gap boot, external-reader lease safety, automatic upgrades or production
 qualification is established by this closeout. Earlier reboot experiments have
 their own narrower scope and must not be substituted for this service test.
-GitHub remains Private and no project license is selected.
+GitHub remains Private and the project now uses [MIT](../LICENSE).
 
 ## Failed attempts and the progress correction
 
@@ -213,4 +213,4 @@ slice reports keep their conservative mvp_qualified=false field; the completion
 statement here is based on the combined current passing flows, not on one slice
 being a blanket qualification. No long-term stability or production guarantee is
 added. Full source tests require Linux /proc and are not claimed as native macOS
-service qualification. GitHub remains Private and the license remains unset.
+service qualification. GitHub remains Private and the project now uses [MIT](../LICENSE).

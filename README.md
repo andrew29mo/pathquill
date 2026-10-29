@@ -2,7 +2,7 @@
 
 Private Linux network incident recorder with fixed snapshots, package publication,
 recovery after process crashes and explicit retirement.
-No project license has been selected. The formal daemon now collects and
+Licensed under the [MIT License](LICENSE). The formal daemon now collects and
 reconstructs state, schedules bounded probes and drives incident lifecycle;
 capacity and retention are implemented; durable deidentified snapshots and
 JSON/HTML package publication, interrupted-publication reconciliation and
@@ -56,8 +56,7 @@ TCP/DNS trigger methods and actual tmpfs ENOSPC/readonly-startup checks.
 
 Individual stage reports retain mvp_qualified=false because they each cover a
 bounded slice. The planned functional closure and its aggregate verification
-status are summarized in [CLOSEOUT.md](docs/CLOSEOUT.md); no stage establishes production readiness. No project license
-has been selected. No power-loss, physical media failure, zero-gap boot or
+status are summarized in [CLOSEOUT.md](docs/CLOSEOUT.md); no stage establishes production readiness. No power-loss, physical media failure, zero-gap boot or
 long-term stability claims are made. See each stage guide for injected-versus-real test distinctions, and CLOSEOUT.md
 for the completed functional scope and remaining untested boundaries.
 
@@ -83,5 +82,10 @@ seal/archive/new-store handoff is available, automatic rollover is not.
 
 The final pre-publication review is recorded in
 [PREPUBLIC_REVIEW.md](docs/PREPUBLIC_REVIEW.md). The repository remains Private,
-and no project license is granted yet. The source/build/host dependency inventory
-is in [DEPENDENCIES.md](docs/DEPENDENCIES.md); it does not license Pathquill.
+and is licensed under [MIT](LICENSE). The source/build/host dependency inventory
+is in [DEPENDENCIES.md](docs/DEPENDENCIES.md); upstream components retain their own terms.
+
+The MIT addition changes packaging metadata and documentation only. Existing
+measurement reports retain their original pyproject fingerprints and pre-license
+status text; production runtime/test bytes are unchanged. See the licensing
+addendum in [DEPENDENCIES.md](docs/DEPENDENCIES.md).

@@ -3,7 +3,8 @@
 Date: 2026-10-29. Reviewed code/test/evidence baseline: ed781910be7e7f6227450f19ab946c23ecb95805.
 Follow-up changes in this review clarify documentation only; production code,
 tests, deployment assets and qualification reports remain at that same content.
-GitHub remains Private and no project license is selected.
+GitHub remains Private. MIT was selected after this review; see the licensing
+addendum in [DEPENDENCIES.md](DEPENDENCIES.md).
 
 ## Code, tests and claims
 
@@ -14,7 +15,9 @@ source suite was rerun in the existing isolated VM: 111 tests passed.
 
 Seven current regression reports (deployment, retention, publication recovery,
 publication, export snapshot, capacity and milestone 1) each record the same
-111 distinct source tests. Their recorded fingerprints match current files.
+111 distinct source tests. Runtime/test fingerprints still match current files; the original pyproject
+fingerprint predates the licensing-only metadata addition documented in
+DEPENDENCIES.md.
 The closeout report's installed-module fingerprints match production source.
 All top-level JSON/HTML report pairs represent identical objects. Resource
 summary recomputation matches the report and fixed acceptance limits:
@@ -56,7 +59,7 @@ receipts must stay private; sanitized exports are a narrower allowlisted format.
 ## Repository and release state
 
 Read-only GitHub checks confirmed the intended owner/repository, Private main,
-no selected license, only the owner as collaborator, and no open pull request.
+no selected license at review time, only the owner as collaborator, and no open pull request.
 There are zero Actions workflows. Actions itself is enabled with all actions
 allowed; its default workflow token is read-only and PR approval is disabled.
 No remote CI pass is claimed: verification is the recorded local Linux work.
@@ -72,7 +75,8 @@ checks are not a substitute for that step.
 
 - Decide whether to retain the historical local-machine commit identity or
   explicitly authorize the reviewed metadata-only rewrite.
-- Select the project license after reviewing [DEPENDENCIES.md](DEPENDENCIES.md).
+- License decision completed: [MIT](../LICENSE), with the inventory in
+  [DEPENDENCIES.md](DEPENDENCIES.md).
 - Public visibility requires separate authorization. No public-release mutation
   has been made in this review.
 

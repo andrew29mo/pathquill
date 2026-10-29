@@ -80,7 +80,7 @@ HTML timeline. Its in-memory result does not qualify file-export/GC races.
 All mutation paths need consistent degradation handling before service release;
 legacy Store gap/finish/delete are not a full storage-failure interface.
 No wall-clock-step, suspend, power-loss, prolonged overload, WAN, physical media
-or long-term resource qualification is claimed. No project license selected.
+or long-term resource qualification is claimed. Current project license: [MIT](../LICENSE).
 
 ## Review corrections
 

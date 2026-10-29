@@ -1,8 +1,8 @@
 # Dependency and license inventory
 
-Reviewed 2026-10-29 against the ed78191 source baseline. This inventory does not
-select or grant a license for Pathquill. There is currently no project LICENSE
-file or license declaration in pyproject.toml.
+Reviewed 2026-10-29 against the ed78191 source baseline. Pathquill now uses the [MIT License](../LICENSE), selected by its owner on
+2026-10-29. pyproject.toml declares SPDX MIT and includes LICENSE in distributions.
+Upstream components retain their own terms.
 
 ## Source distribution scope
 
@@ -32,5 +32,20 @@ the measured artifacts; no dependency-free host or reproducible-build guarantee
 is made. A future binary/container/VM distribution would need its own complete
 component/notice inventory rather than reusing this source-only inventory.
 
-Project license selection remains an explicit later decision. Adding an upstream
-reference here does not relicense that component or Pathquill.
+The project MIT license does not relicense upstream components.
+
+## Licensing addendum (2026-10-29)
+
+Only LICENSE, project licensing metadata and documentation changed after the
+reviewed code baseline. Existing reports remain immutable measurement records:
+their pre-license status strings, old pyproject SHA and old wheel hashes describe
+the originally measured artifacts. Runtime and test source fingerprints are
+unchanged. The new package is checked separately for MIT metadata, included
+license text and byte-identical runtime modules; prior timing/RSS results are
+not represented as a fresh measurement of the newly built wheel.
+
+Package verification passed in the isolated Linux VM: the wheel declares
+License-Expression: MIT and License-File: LICENSE; wheel and sdist both contain
+the exact repository LICENSE. All 14 packaged runtime modules are byte-identical
+to the source, with no Requires-Dist runtime dependency. The checked wheel SHA256
+is 2d570c2e64a2ef425fe6465d814283b8ddbf9122ed3f6b120d6aceb8e21b8c28.

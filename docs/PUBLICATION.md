@@ -128,7 +128,7 @@ verification reports are distinct from product packages.
 Before/after-rename and cleanup process-crash evidence is now documented in
 PUBLICATION_RECOVERY.md. No crash inside the kernel rename operation, external-
 reader lease, VM reboot, power-loss durability, zero-gap boot or long-term
-qualification is claimed. GitHub remains Private; no project license is selected.
+qualification is claimed. GitHub remains Private; the project now uses [MIT](../LICENSE).
 
 ## P0-4a/b review corrections
 
