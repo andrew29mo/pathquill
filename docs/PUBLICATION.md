@@ -71,8 +71,11 @@ Logical lengths exclude allocated blocks, filesystem metadata and SQLite size;
 these limits are not disk quotas or guaranteed capacity reservations against
 other programs. Published files/history are not automatically reclaimed.
 
-Write/sync/rename failures retain intent, bytes and any owned files as BLOCKED,
-return a fixed publication_incomplete error, and prevent further publication.
+Before intent, directory creation/accounting I/O failures return the fixed
+publication_unavailable error without a publication record; repair permits retry
+within the original deadline. After intent, write/sync/rename failures retain
+intent, bytes and any owned files as BLOCKED, return publication_incomplete,
+and prevent further publication.
 SQLite failure may instead safely exit the daemon under the existing storage
 contract; it cannot return a successful publication reply. Repair/cleanup is
 not automated in this slice. The read-only snapshot can remain available; do not
@@ -118,3 +121,22 @@ verification reports are distinct from product packages.
 No crash-at-rename VM scenario, automatic recovery/cleanup, external-reader
 lease, VM reboot, power-loss durability, zero-gap boot or long-term qualification
 is claimed. GitHub remains Private; no project license is selected.
+
+## P0-4a/b review corrections
+
+Pre-intent directory creation/accounting I/O errors now return the path-free
+publication_unavailable error through the formal RPC/CLI. No publication intent
+or payload files are created in this branch (an empty packages directory may
+exist); after repair the same request may retry against its original snapshot
+and deadline. This differs from publication_incomplete after intent, which
+remains conservatively BLOCKED. Directory creation ENOSPC is unit-injected;
+the VM exercises an actual unreadable package directory and repair with the
+formal daemon/CLI. Neither is a physical media-failure qualification.
+
+Package acceptance now compares JSON bytes/digest and escaped HTML against the
+fixed snapshot API, requires the manifest schema and exact JSON/HTML members,
+and positively requires useful sanitized fixture content. An empty self-consistent
+package cannot pass solely by omitting sensitive strings. Regressions also
+exercise expiry after staging (no final name) and a destination collision through
+the full publication method, preserving the prior destination unchanged.
+These additions do not qualify crash-at-rename recovery or automated cleanup.

@@ -6,41 +6,41 @@
     &quot;release&quot;: &quot;6.8.0-117-generic&quot;,
     &quot;machine&quot;: &quot;aarch64&quot;,
     &quot;python&quot;: &quot;3.12.3&quot;,
-    &quot;utc&quot;: &quot;2026-10-29T06:01:21.198877+00:00&quot;
+    &quot;utc&quot;: &quot;2026-10-29T06:17:14.691354+00:00&quot;
   },
   &quot;cases&quot;: [
     {
       &quot;name&quot;: &quot;real_address_add_delete_and_stale_result&quot;,
       &quot;notifications&quot;: 2,
       &quot;stale&quot;: 1,
-      &quot;add_observation_seconds&quot;: 0.04808643099931942,
+      &quot;add_observation_seconds&quot;: 0.02059684800042305,
       &quot;stale_health_unchanged&quot;: true,
       &quot;stale_not_persisted&quot;: true,
-      &quot;mutation_begin&quot;: 11665.483660179,
-      &quot;changed_observed&quot;: 11665.531746152,
+      &quot;mutation_begin&quot;: 12618.952336094,
+      &quot;changed_observed&quot;: 12618.972932734,
       &quot;slow_result&quot;: {
         &quot;target&quot;: 1,
         &quot;generation&quot;: 1,
         &quot;outcome&quot;: &quot;timeout&quot;,
-        &quot;start&quot;: 11665.42607839,
-        &quot;end&quot;: 11666.927051242,
+        &quot;start&quot;: 12618.897957993,
+        &quot;end&quot;: 12620.399046433,
         &quot;stale&quot;: true
       },
-      &quot;writer_progress_delta&quot;: 1,
+      &quot;writer_progress_delta&quot;: 22,
       &quot;independent_links_addresses&quot;: true,
       &quot;independent_route_count&quot;: 10,
       &quot;passed&quot;: true
     },
     {
       &quot;name&quot;: &quot;real_failure_recovery_and_committed_seal&quot;,
-      &quot;committed&quot;: 1816,
+      &quot;committed&quot;: 1817,
       &quot;window_seconds&quot;: 30.0,
-      &quot;persisted_barrier_sequence&quot;: 1816,
-      &quot;persisted_barrier_after_deadline&quot;: 0.04339143099969078,
-      &quot;sealed_observed_after_deadline&quot;: 0.05233014700024796,
+      &quot;persisted_barrier_sequence&quot;: 1817,
+      &quot;persisted_barrier_after_deadline&quot;: 0.012085483000191743,
+      &quot;sealed_observed_after_deadline&quot;: 0.03704132599887089,
       &quot;incidents&quot;: [
         {
-          &quot;id&quot;: &quot;f0368164-53eb-494a-9ca8-48e1aca433e5&quot;,
+          &quot;id&quot;: &quot;f0b12d97-d600-4011-81e9-ce1b5e832ea2&quot;,
           &quot;state&quot;: &quot;SEALED&quot;,
           &quot;coverage&quot;: &quot;UNKNOWN&quot;,
           &quot;recovered&quot;: true
@@ -59,7 +59,7 @@
     &quot;DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim&quot;,
     &quot;No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification&quot;
   ],
-  &quot;tests&quot;: 70,
+  &quot;tests&quot;: 73,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
     &quot;pathquill/cli.py&quot;: &quot;e3226d40a30853acf0545ad62ff8175327e096b694c65795eec9efd0e441e83c&quot;,
@@ -69,7 +69,7 @@
     &quot;pathquill/managed.py&quot;: &quot;c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91&quot;,
     &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
     &quot;pathquill/probes.py&quot;: &quot;042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169&quot;,
-    &quot;pathquill/publication.py&quot;: &quot;3dc7edf1c84e21d6d60dcf29dc69f9b03ce3dd5ddf1d77767b0659a86dc2f968&quot;,
+    &quot;pathquill/publication.py&quot;: &quot;2fab93474de2288ec03b0709b5bd4d050ccdab85f4ce3bd1cab5a5d30215c49d&quot;,
     &quot;pathquill/recorder.py&quot;: &quot;3ffe383585ce5b71b8c315ce7a15ee8c417700ecfb4b6a04a8ca8800f36b2639&quot;,
     &quot;pathquill/redaction.py&quot;: &quot;7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c&quot;,
     &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
@@ -79,7 +79,7 @@
     &quot;tests/test_exports.py&quot;: &quot;46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650&quot;,
     &quot;tests/test_managed.py&quot;: &quot;5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26&quot;,
     &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
-    &quot;tests/test_publication.py&quot;: &quot;31c905900cd3bf88c63d3878343e5c06d561d78de370341b584b41a35c09582f&quot;,
+    &quot;tests/test_publication.py&quot;: &quot;026e0752988976f845ccb6ca28b5602e652d16d1a901095c7e6648903ae27d90&quot;,
     &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
     &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
     &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,

@@ -18,7 +18,7 @@ if mode=='orchestrate':
             os.chown(tmp,501,501);out=Path(tmp)/'result.json'
             code=run_group([sys.executable,__file__,'worker',str(out)],45)
             result=json.loads(out.read_text())
-            required={'formal_cli_complete_sanitized_package_and_dedup','cancel_before_publication_refuses_delivery','real_directory_write_denial_no_false_success'}
+            required={'preintent_directory_denial_is_structured_and_retryable','formal_cli_complete_sanitized_package_and_dedup','cancel_before_publication_refuses_delivery','real_directory_write_denial_no_false_success'}
             check(code==0 and result['passed'] and {case['name'] for case in result['cases']}==required,'incomplete verification')
         result['orchestrator_cleanup']=True
     except Exception as error:result=dict(passed=False,error=type(error).__name__)
@@ -55,10 +55,23 @@ try:
             cli('export',request);end=time.monotonic()+6
             while cli('export-status',request)['export']['state']!='SNAPSHOT_READY':
                 check(time.monotonic()<end,'snapshot timeout');time.sleep(.05)
-        ready('PRIVATE-request');start=time.monotonic();published=cli('export-publish','PRIVATE-request')['export'];elapsed=time.monotonic()-start
+        ready('PRIVATE-request');fixed=cli('export-read','PRIVATE-request')['export']
+        original_deadline=cli('export-status','PRIVATE-request')['export']['deadline']
+        packages=root/'packages';packages.mkdir(mode=0o700);packages.chmod(0o000)
+        try:check(cli('export-publish','PRIVATE-request',False)['error']=='publication_unavailable','preintent failure lost structured reply')
+        finally:packages.chmod(0o700)
+        check(cli('publication-status','PRIVATE-request',False)['error']=='publication_not_found','preintent failure created ownership')
+        result['cases'].append(dict(name='preintent_directory_denial_is_structured_and_retryable',passed=True))
+        start=time.monotonic();published=cli('export-publish','PRIVATE-request')['export'];elapsed=time.monotonic()-start
         check(published['state']=='PUBLISHED','not published');directory=root/'packages'/published['package']
+        check(cli('export-status','PRIVATE-request')['export']['deadline']==original_deadline,'repair extended deadline')
         files={p.name:p.read_bytes() for p in directory.iterdir()};check(set(files)=={'snapshot.json','index.html','manifest.json'},'partial package')
+        check(json.loads(files['snapshot.json'])==fixed['snapshot'],'publication changed snapshot content')
+        check(files['index.html'].decode()==fixed['preview_html'],'publication changed HTML preview')
+        check(hashlib.sha256(files['snapshot.json']).hexdigest()==fixed['digest'],'publication changed fixed JSON bytes')
+        check(len(fixed['snapshot']['incident']['endpoints'])==2 and any(event.get('group')=='links' and event.get('state',{}).get('interface') for event in fixed['snapshot']['observations']),'sanitized fixture lost useful content')
         manifest=json.loads(files['manifest.json'])
+        check(manifest.get('schema')=='pathquill-package-v1' and set(manifest.get('files',{}))=={'snapshot.json','index.html'},'incomplete manifest')
         for name,entry in manifest['files'].items():check(hashlib.sha256(files[name]).hexdigest()==entry['sha256'] and len(files[name])==entry['bytes'],'manifest mismatch')
         for name,data in files.items():
             for raw in ['10.23.45.67','PRIVATE','PRIVATE-request',source,str(root),'0a172d43']:check(raw not in name+data.decode(),'original value leaked')

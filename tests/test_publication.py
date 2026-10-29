@@ -19,7 +19,13 @@ class PublicationTests(unittest.TestCase):
     def test_complete_package_dedup_cancel_boundary(self):
         result=self.publish();self.assertEqual(result['state'],'PUBLISHED')
         directory=self.r.root/'packages'/result['package'];self.assertEqual({p.name for p in directory.iterdir()},{'snapshot.json','index.html','manifest.json'})
+        fixed=self.r.read_snapshot('secret_request')
+        self.assertEqual(json.loads((directory/'snapshot.json').read_text()),fixed['snapshot'])
+        self.assertEqual((directory/'index.html').read_text(),fixed['preview_html'])
+        self.assertEqual(hashlib.sha256((directory/'snapshot.json').read_bytes()).hexdigest(),fixed['digest'])
         manifest=json.loads((directory/'manifest.json').read_text())
+        self.assertEqual(manifest['schema'],'pathquill-package-v1')
+        self.assertEqual(set(manifest['files']),{'snapshot.json','index.html'})
         for name,entry in manifest['files'].items():
             data=(directory/name).read_bytes();self.assertEqual(len(data),entry['bytes']);self.assertEqual(hashlib.sha256(data).hexdigest(),entry['sha256'])
         for p in directory.iterdir():
@@ -98,3 +104,30 @@ class PublicationTests(unittest.TestCase):
         self.assertTrue((self.r.root/'packages'/package/'snapshot.json').exists())
         self.r.close();self.r=PublicationRecorder(self.tmp.name)
         self.assertEqual(self.r.publication_status('secret_request')['state'],'BLOCKED')
+
+    def test_expiry_after_staging_does_not_publish(self):
+        with patch('pathquill.publication.boottime',side_effect=[0,float('inf')]):
+            with self.assertRaisesRegex(Refused,'publication_incomplete'):self.publish()
+        status=self.r.publication_status('secret_request')
+        self.assertEqual(status['state'],'BLOCKED')
+        directory=self.r.root/'packages'
+        self.assertFalse((directory/status['package']).exists())
+        self.assertEqual({p.name for p in (directory/('.stage-'+status['package'])).iterdir()},{'snapshot.json','index.html','manifest.json'})
+        self.assertTrue(self.r.read_snapshot('secret_request'))
+    def test_publication_collision_preserves_existing_result(self):
+        from types import SimpleNamespace
+        directory=self.r.package_directory();existing=directory/('a'*32);existing.mkdir()
+        (existing/'marker').write_text('keep')
+        with patch('pathquill.publication.uuid.uuid4',return_value=SimpleNamespace(hex='a'*32)):
+            with self.assertRaisesRegex(Refused,'publication_incomplete'):self.publish()
+        self.assertEqual((existing/'marker').read_text(),'keep')
+        self.assertEqual(self.r.publication_status('secret_request')['state'],'BLOCKED')
+
+    def test_package_directory_creation_error_is_structured_and_retryable(self):
+        deadline=self.r.export_status('secret_request')['deadline']
+        with patch('pathquill.publication.os.mkdir',side_effect=OSError(errno.ENOSPC,'private path must not escape')):
+            with self.assertRaisesRegex(Refused,'^publication_unavailable$'):self.publish()
+        self.assertIsNone(self.r.db.execute('SELECT 1 FROM publications').fetchone())
+        self.assertTrue(self.r.read_snapshot('secret_request'))
+        self.assertEqual(self.publish()['state'],'PUBLISHED')
+        self.assertEqual(self.r.export_status('secret_request')['deadline'],deadline)

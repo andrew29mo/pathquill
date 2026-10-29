@@ -81,9 +81,14 @@ class PublicationRecorder(ExportRecorder):
         bodies['manifest.json']=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
         size=sum(map(len,bodies.values()))
         if size>PACKAGE_LIMIT:raise Refused('package_size_budget')
-        directory=self.package_directory()
-        if self.disk_usage(directory)+size>FILE_BUDGET:raise Refused('package_byte_budget')
-        if len(list(directory.iterdir()))>=32:raise Refused('package_entry_budget')
+        try:
+            directory=self.package_directory()
+            if self.disk_usage(directory)+size>FILE_BUDGET:raise Refused('package_byte_budget')
+            if len(list(directory.iterdir()))>=32:raise Refused('package_entry_budget')
+        except OSError:
+            # No intent or package files yet: a repaired retry can use the same
+            # fixed snapshot/deadline. Keep RPC errors independent of local paths.
+            raise Refused('publication_unavailable') from None
         package=uuid.uuid4().hex
         # Persist reservation/ownership before creating any files. No source hold:
         # the immutable SQLite snapshot remains the sole input.
