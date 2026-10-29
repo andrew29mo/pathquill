@@ -12,8 +12,8 @@
       &quot;snapshot_digest&quot;: &quot;4c55029e9761b07400c7b795c4b4afcc014f3aa56635a98829503b8ae3d601af&quot;,
       &quot;raw_values_absent&quot;: true,
       &quot;state_alias_relationships_preserved&quot;: true,
-      &quot;concurrent_reads&quot;: 638,
-      &quot;progress_during_reads&quot;: 1.211383324000053,
+      &quot;concurrent_reads&quot;: 1290,
+      &quot;progress_during_reads&quot;: 2.7297379539995745,
       &quot;passed&quot;: true
     },
     {
@@ -23,24 +23,25 @@
   ],
   &quot;environment&quot;: {
     &quot;system&quot;: &quot;Linux VM&quot;,
-    &quot;utc&quot;: &quot;2026-10-29T05:43:13.175806+00:00&quot;
+    &quot;utc&quot;: &quot;2026-10-29T06:02:35.924488+00:00&quot;
   },
   &quot;limits&quot;: [
     &quot;Sources are synthetic privacy fixtures seeded through product API, not real network incidents&quot;,
     &quot;Process SIGKILL/restart only; no VM reboot or power loss&quot;,
-    &quot;SQLite snapshot only; no published export files or atomic filesystem publication&quot;,
+    &quot;This runner exercises SQLite snapshots only; package publication is verified separately&quot;,
     &quot;Unknown ownership is fail-closed BLOCKED; operator repair interface remains deferred&quot;
   ],
-  &quot;tests&quot;: 57,
+  &quot;tests&quot;: 70,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
-    &quot;pathquill/cli.py&quot;: &quot;48c885378aaa53b638e5f0d499c1ae3d89e0e2d2b388b713c2e64786709018e3&quot;,
+    &quot;pathquill/cli.py&quot;: &quot;e3226d40a30853acf0545ad62ff8175327e096b694c65795eec9efd0e441e83c&quot;,
     &quot;pathquill/core.py&quot;: &quot;23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb&quot;,
-    &quot;pathquill/daemon.py&quot;: &quot;f7672977b5e3982d534776856d6bb5fe27f857b914a1c61e696e5567a24ff736&quot;,
+    &quot;pathquill/daemon.py&quot;: &quot;0c10f7d8dceba05efb6c8d71d320b39cf86b0b20637f28ca7762f439f87512cb&quot;,
     &quot;pathquill/exports.py&quot;: &quot;43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c&quot;,
     &quot;pathquill/managed.py&quot;: &quot;c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91&quot;,
     &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
     &quot;pathquill/probes.py&quot;: &quot;042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169&quot;,
+    &quot;pathquill/publication.py&quot;: &quot;3dc7edf1c84e21d6d60dcf29dc69f9b03ce3dd5ddf1d77767b0659a86dc2f968&quot;,
     &quot;pathquill/recorder.py&quot;: &quot;3ffe383585ce5b71b8c315ce7a15ee8c417700ecfb4b6a04a8ca8800f36b2639&quot;,
     &quot;pathquill/redaction.py&quot;: &quot;7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c&quot;,
     &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
@@ -50,11 +51,12 @@
     &quot;tests/test_exports.py&quot;: &quot;46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650&quot;,
     &quot;tests/test_managed.py&quot;: &quot;5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26&quot;,
     &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
+    &quot;tests/test_publication.py&quot;: &quot;31c905900cd3bf88c63d3878343e5c06d561d78de370341b584b41a35c09582f&quot;,
     &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
     &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
     &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
     &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
-    &quot;tools/export_snapshot.py&quot;: &quot;0dac5048be9f908b784139bd797b9cf8d918cfd28c61ca81767ebf88f009b864&quot;,
+    &quot;tools/export_snapshot.py&quot;: &quot;89a0ef4215b50402a8e8a1171a16bf5a6925166870ede577bb6ca78fd8339769&quot;,
     &quot;tools/supervision.py&quot;: &quot;e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1&quot;,
     &quot;pyproject.toml&quot;: &quot;a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123&quot;
   },

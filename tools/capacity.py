@@ -30,7 +30,7 @@ if mode=='orchestrate' and len(sys.argv)==2:
     publish(FINAL,value);sys.exit(0 if value['passed'] else 1)
 if mode!='worker' or len(sys.argv)!=4:
     raise SystemExit('Usage: capacity.py orchestrate (inside a disposable Linux VM)')
-r=dict(passed=False,mvp_qualified=False,cases=[],environment=dict(system=platform.system(),release=platform.release(),python=platform.python_version(),utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),limits=['Logical budgets, not filesystem quota or guaranteed writes on a physically full filesystem','Normal daemon process restart, not VM reboot or power loss','Hold/release tests reservation primitives; file export lifecycle not implemented','Cross-boot reanchoring is unit-tested with altered metadata, not a real VM reboot'])
+r=dict(passed=False,mvp_qualified=False,cases=[],environment=dict(system=platform.system(),release=platform.release(),python=platform.python_version(),utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),limits=['Logical budgets, not filesystem quota or guaranteed writes on a physically full filesystem','Normal daemon process restart, not VM reboot or power loss','This runner exercises hold/release primitives; package publication is verified separately','Cross-boot reanchoring is unit-tested with altered metadata, not a real VM reboot'])
 out=Path(sys.argv[3])
 def save():
     out.write_text(json.dumps(r,indent=2)+'\n');out.with_suffix('.html').write_text('<!doctype html><meta charset="utf-8"><pre>'+html.escape(json.dumps(r,indent=2))+'</pre>')

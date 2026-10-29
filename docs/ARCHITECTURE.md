@@ -126,3 +126,12 @@ The P0-3 review fixes huge-duration rejection and removes scheduler bypass from
 snapshot reads. Export validation now requires positive state alias relationships
 and durable progress under concurrent reads, alongside sensitive-value absence.
 See EXPORT_SNAPSHOT.md for scope and existing safe-exit storage semantics.
+
+## P0-4a/b publication
+
+The daemon now uses PublicationRecorder over the existing export core. A durable
+intent precedes private staging, exclusive writes, content verification, fsync
+and Linux no-replace directory publication. Cancellation is serialized at the
+writer boundary; ambiguous completion blocks without automatic cleanup. Fixed
+file-byte/count limits cover staging and final packages. See PUBLICATION.md for
+contracts, trust boundaries and remaining P0-4c/d recovery/cleanup work.

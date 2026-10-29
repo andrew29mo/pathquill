@@ -144,3 +144,10 @@ the daemon rather than always exposing a live STORAGE_ERROR interface. The
 transaction-abort tests verify rollback and preservation of the hold, followed
 by explicit repair/restart interruption. They are not physical export-transaction
 ENOSPC or power-loss qualification. File publication remains unimplemented.
+
+## Subsequent publication slice
+
+P0-4a/b now adds explicit private JSON/HTML package publication; see
+[PUBLICATION.md](PUBLICATION.md). Earlier no-publication statements describe
+the snapshot-only milestone and its evidence. Automatic interrupted-publication
+reconciliation and cleanup remain deferred.

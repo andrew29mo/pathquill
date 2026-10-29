@@ -24,7 +24,7 @@ if mode=='orchestrate' and len(sys.argv)==2:
     except Exception as error:value=dict(passed=False,error=type(error).__name__+': '+str(error))
     publish(FINAL,value);sys.exit(0 if value['passed'] else 1)
 if mode!='worker' or len(sys.argv)!=3:raise SystemExit('Usage: export_snapshot.py orchestrate inside isolated Linux VM')
-r=dict(passed=False,mvp_qualified=False,cases=[],environment=dict(system='Linux VM',utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),limits=['Sources are synthetic privacy fixtures seeded through product API, not real network incidents','Process SIGKILL/restart only; no VM reboot or power loss','SQLite snapshot only; no published export files or atomic filesystem publication','Unknown ownership is fail-closed BLOCKED; operator repair interface remains deferred'])
+r=dict(passed=False,mvp_qualified=False,cases=[],environment=dict(system='Linux VM',utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),limits=['Sources are synthetic privacy fixtures seeded through product API, not real network incidents','Process SIGKILL/restart only; no VM reboot or power loss','This runner exercises SQLite snapshots only; package publication is verified separately','Unknown ownership is fail-closed BLOCKED; operator repair interface remains deferred'])
 proc=None
 out=Path(sys.argv[2])
 def save():

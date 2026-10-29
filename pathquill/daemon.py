@@ -12,7 +12,7 @@ import socket
 import time
 import threading
 from .core import Refused,boottime
-from .exports import ExportRecorder as ManagedRecorder
+from .publication import PublicationRecorder as ManagedRecorder
 from .netlink import RouteSocket
 from .state import State
 from .probes import dns_query
@@ -87,6 +87,8 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                         if not isinstance(request,dict):raise ValueError('request_type')
                         export_result=None
                         if request.get('op')=='export':export_result=r.request_export(request.get('request'),request.get('id'),request.get('seconds',30),request.get('epoch'))
+                        elif request.get('op')=='export-publish':export_result=r.publish_export(request.get('request'),request.get('epoch'))
+                        elif request.get('op')=='publication-status':export_result=r.publication_status(request.get('request'))
                         elif request.get('op')=='export-status':export_result=r.export_status(request.get('request'))
                         elif request.get('op')=='export-cancel':export_result=r.cancel_export(request.get('request'),request.get('epoch'))
                         elif request.get('op')=='export-read':export_result=r.read_snapshot(request.get('request'))
