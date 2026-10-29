@@ -65,7 +65,7 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
         r.observe(dict(kind='sync',generation=state.generation,valid=ok))
         for key, in r.db.execute("SELECT id FROM incidents WHERE state='CAPTURING'").fetchall():r.gap(key,'resynchronize')
     try:
-        rebuild();last_retry=boottime();last_gc=boottime();last_export=boottime()
+        rebuild();last_retry=boottime();last_gc=boottime();last_export=boottime();last_progress=0
         while running:
             # Drain currently available notifications before committing a progress barrier.
             reads,_,_=select.select([backend.socket,rpc],[],[],.02)
@@ -134,8 +134,12 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
             if not r.degraded and now-last_gc>=1:
                 r.collect(r.epoch);last_gc=now
             # Same thread owns receive, writes and this commit: no pending writer queue.
-            if not select.select([backend.socket],[],[],0)[0]:
-                r.observe(dict(kind='progress',generation=state.generation));committed=r.db.execute('SELECT max(seq) FROM observations').fetchone()[0]
+            # Coalesce idle progress: 50 redundant commits/second can exhaust a
+            # normal 60-second prebuffer + capture's bounded export row budget.
+            # Probe/state events still commit immediately; sealing requires this
+            # actual persisted watermark, never elapsed wall time alone.
+            if now-last_progress>=.1 and not select.select([backend.socket],[],[],0)[0]:
+                r.observe(dict(kind='progress',generation=state.generation));committed=r.db.execute('SELECT max(seq) FROM observations').fetchone()[0];last_progress=boottime()
                 for key,first,end in r.db.execute("SELECT id,first,end FROM incidents WHERE state='CAPTURING'").fetchall():
                     if now>=end and not pending:
                         recovered=recovery_ready(health,checked,len(targets),state.status,first)

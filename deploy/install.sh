@@ -1,6 +1,8 @@
 #!/bin/sh
 # Fresh installation only. Existing configuration/data are never overwritten.
 set -eu
+# Package files must remain root-owned, readable and never group/world writable.
+umask 022
 if [ "$(id -u)" -ne 0 ]; then echo 'root installation required' >&2; exit 1; fi
 if [ "$#" -ne 1 ]; then echo 'Usage: install.sh /absolute/pathquill.whl' >&2; exit 1; fi
 wheel=$(realpath -- "$1")

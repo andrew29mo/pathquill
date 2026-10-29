@@ -171,4 +171,7 @@ marks a SEALED store as permanent/non-restarting. A private allowlisted stop
 receipt preserves actual systemd exit evidence after inactive-unit collection.
 Real PID 1 restart-limit events and current invocation/boot evidence are required.
 See DEPLOYMENT.md for installer boundaries, packaged-service validation and the
-remaining clean-VM/sustained-operation acceptance. No boot/reboot claim is added.
+separate clean-VM/sustained-operation acceptance in CLOSEOUT.md. No boot/reboot
+claim is added. Idle durable progress commits are coalesced to 100ms to keep the
+small normal capture within bounded export inputs; network/probe event handling
+stays immediate, and a real persisted watermark is still required for sealing.

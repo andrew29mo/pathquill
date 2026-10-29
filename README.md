@@ -9,17 +9,19 @@ JSON/HTML package publication, interrupted-publication reconciliation and
 conservative cleanup, explicit retirement and full-history archive/new-store
 workflow are available. See [retention contract and evidence](docs/RETENTION.md).
 Installed-package/systemd lifecycle validation is available in
-[deployment contract and evidence](docs/DEPLOYMENT.md). Clean-VM end-to-end and
-bounded sustained-operation acceptance remain incomplete. See [recovery contract and evidence](docs/PUBLICATION_RECOVERY.md).
+[deployment contract and evidence](docs/DEPLOYMENT.md). The final document-driven
+Linux workflow and fixed resource acceptance are described in
+[bounded closeout](docs/CLOSEOUT.md). See [recovery contract and evidence](docs/PUBLICATION_RECOVERY.md).
 See [publication contract and evidence](docs/PUBLICATION.md),
 [snapshot contract and evidence](docs/EXPORT_SNAPSHOT.md), and
 [capacity contract and evidence](docs/CAPACITY.md).
 
-The original core is imported by tests; no alternate implementation is used.
-The Linux runner exercises an isolated network namespace inside a Colima VM,
-then drops to UID 501 before opening the route notification socket. Root only
-creates the disposable namespace and dummy interface. The namespace disappears
-when the runner and helper processes exit.
+Tests import the production core. Earlier namespace runners drop to UID 501;
+formal deployment and closeout instead install the wheel and run the real systemd
+service as a dedicated unprivileged account. They explicitly distinguish the
+default VM network from a test-only namespace override. No alternate recorder
+implementation is used. Root prepares isolated fixtures and installs the service;
+cleanup checks processes and owned resources before reporting success.
 
 ## Reproduce
 
@@ -48,8 +50,27 @@ are described in [Milestone 1](docs/MILESTONE1.md). The current core adds a pers
 observation ring, capture copies, read-only dump interval collection, real
 TCP/DNS trigger methods and actual tmpfs ENOSPC/readonly-startup checks.
 
-This is not yet a complete qualified MVP. Current evidence
-qualifies bounded primitives; mvp_qualified remains false. No project license
+Individual stage reports retain mvp_qualified=false because they each cover a
+bounded slice. The planned functional closure and its aggregate verification
+status are summarized in CLOSEOUT.md; no stage establishes production readiness. No project license
 has been selected. No power-loss, physical media failure, zero-gap boot or
 long-term stability claims are made. See the continuation guide for precise
 injected-versus-real test distinctions and remaining MVP acceptance gates.
+
+## Installed-service closeout
+
+In a newly provisioned disposable Linux VM with the prerequisites and pre-install
+receipt documented in [CLOSEOUT.md](docs/CLOSEOUT.md):
+
+```sh
+sudo timeout 650 python3 tools/deployment.py orchestrate-closeout
+```
+
+[Closeout JSON](evidence/closeout.json) and [HTML](evidence/closeout.html) retain
+all resource samples, fixed acceptance thresholds, actual TCP failure/recovery
+evidence and installed-package provenance. Failed attempts are retained separately;
+this is a bounded local workload, not a production or long-term stability claim.
+Exports have a 4,096-row/1 MiB input limit and a 256 KiB snapshot limit. Idle
+progress commits are coalesced at 100ms; high event rates can still exceed budgets
+and fail export safely. Export history has 32 permanent slots per store; explicit
+seal/archive/new-store handoff is available, automatic rollover is not.

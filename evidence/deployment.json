@@ -21,9 +21,9 @@
       "name": "explicit_namespace_probe_and_sigkill_takeover",
       "namespace_matches_target": true,
       "probe_success": true,
-      "observed_restart_cli_seconds": 1.146036190999439,
-      "main_rss_kib": 19968,
-      "cgroup_memory_current_bytes": 9674752,
+      "observed_restart_cli_seconds": 1.1375174269996933,
+      "main_rss_kib": 19964,
+      "cgroup_memory_current_bytes": 9662464,
       "old_export_interrupted": true,
       "old_operation_rejected": true,
       "passed": true
@@ -53,7 +53,7 @@
     "release": "6.8.0-117-generic",
     "python": "3.12.3",
     "systemd": "systemd 255 (255.4-1ubuntu8.15)",
-    "utc": "2026-10-29T08:14:50.048337+00:00"
+    "utc": "2026-10-29T09:43:18.305091+00:00"
   },
   "limits": [
     "Existing Colima Linux VM with fresh Pathquill paths, not a clean OS/VM or boot test",
@@ -62,7 +62,7 @@
     "Finite restart/stop observations, no hard latency or resource-leak guarantee",
     "No VM reboot, power loss, systemd boot enablement, independent backup restore or production qualification"
   ],
-  "tests": 108,
+  "tests": 111,
   "phase": "complete",
   "applied_policy": {
     "Restart": "on-failure",
@@ -74,9 +74,11 @@
     "KillMode": "control-group"
   },
   "installation": {
-    "wheel_sha256": "7b5f4ef09faf2bcd310cb19f6aa6648df7b2a530baf32f0d01e65b675e246b66",
+    "wheel_sha256": "c1640ea7d7c8e0c3be121f2e0a4b999f0da76ed4362bb56b374914a5f597fc51",
     "wheel_generator": "Generator: setuptools (84.2.1)",
     "build_isolation": true,
+    "caller_umask": "000",
+    "root_owned_no_group_world_write": true,
     "service_uid": 996,
     "repeat_install_refused": true,
     "installed_module_hashes": {
@@ -90,7 +92,7 @@
       "service_exit.py": "ff62c3bc9480a4f7cc0ca17f1072a9bb9d13bdbeb2946caf1e2f501b8afb0183",
       "redaction.py": "7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c",
       "archive.py": "3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e",
-      "daemon.py": "461c5fb9f842288720f26342b12d6de6a284224b4f0c7392a841026967ada257",
+      "daemon.py": "15c13ec5fb692551de71bf6ed64041d3f2b69006e67b20715289e926dca21add",
       "publication.py": "de176443ec633f71cfd2bb5f630d5d845237892408737338a94fc76e3a1c9a0b",
       "probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
       "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -102,7 +104,7 @@
     "pathquill/archive.py": "3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e",
     "pathquill/cli.py": "bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed",
     "pathquill/core.py": "adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40",
-    "pathquill/daemon.py": "461c5fb9f842288720f26342b12d6de6a284224b4f0c7392a841026967ada257",
+    "pathquill/daemon.py": "15c13ec5fb692551de71bf6ed64041d3f2b69006e67b20715289e926dca21add",
     "pathquill/exports.py": "43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c",
     "pathquill/managed.py": "b4de5f29a9128e3c24e09f98717fe83e72151db14567eb85d196025c8474fafa",
     "pathquill/netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
@@ -113,6 +115,7 @@
     "pathquill/service_exit.py": "ff62c3bc9480a4f7cc0ca17f1072a9bb9d13bdbeb2946caf1e2f501b8afb0183",
     "pathquill/state.py": "166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7",
     "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_closeout_checks.py": "2d5a5ab84e5fc8adbde33aad1c488c54a8902dcab2e183347325b37c704126ee",
     "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
     "tests/test_daemon.py": "78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513",
     "tests/test_daemon_exit.py": "9047671e57c4f36c63926440758fd246c45aab3dccad7fed6dc1cae70b10ea5b",
@@ -129,10 +132,12 @@
     "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
     "tests/test_supervision.py": "7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39",
     "deploy/config.example.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
-    "deploy/install.sh": "854a9a8ef52744c70744c217e8876a6d03e420d43db1627a7576c884be9f5ecf",
+    "deploy/install.sh": "ad00980cdc8a0e25f6956148371e048fbf1ca328eb8a27a50230268e11768dad",
     "deploy/pathquill.service": "ad6e1ee0b8b6f866afcd2ae4051095866497b4499e80914a485c7a2614e1914c",
-    "tools/deployment.py": "6c171c4f86bf8cc1eaf0945b8ba6e728d2944be3aff0998c0a2a3f071d95d123",
+    "tools/deployment.py": "6f247a4678459d8b4d7d68364338a959b3bbe3b3403931e792ae0e97a7f2eedc",
     "tools/service_evidence.py": "843626f3454949effa926b670dc9d02528ca5fe9dcc6bf81186a3c820de0d979",
+    "tools/closeout.py": "46974675a77d13df8fb1702a752bc3c35cf59c2ee207ca15bc81ced64c9318f0",
+    "tools/closeout_checks.py": "82a00fbca2b53a87d5b95c20e6504a216f1bb60b84d47f9ae35a46633761c3cd",
     "tools/supervision.py": "e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1",
     "pyproject.toml": "a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123"
   },

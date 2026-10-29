@@ -166,7 +166,8 @@ No VM reboot, sudden power loss, zero-gap boot, kernel short-write, long-term
 rollover, independent backup restore, reader-lease safety or formal systemd
 installation qualification is claimed. GitHub stays Private, with no license
 selected. Installed service lifecycle evidence is now in DEPLOYMENT.md;
-mvp_qualified remains false until clean-VM end-to-end/sustained acceptance.
+the separate bounded closeout is documented in CLOSEOUT.md. Historical stage
+qualification flags retain their original scope; they are not production guarantees.
 
 ## Retirement-stage review corrections
 

@@ -4,7 +4,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.supervision import run_group
 from tools.service_evidence import rate_limit_proof,sealed_exit_proof
-FINAL=ROOT/'evidence/deployment.json';UNIT='pathquill.service';PY='/opt/pathquill/venv/bin/python';STATE='/var/lib/pathquill/store'
+from tools.closeout_checks import cleanup_safe
+FINAL=ROOT/('evidence/closeout.json' if len(sys.argv)>1 and sys.argv[1]=='orchestrate-closeout' else 'evidence/deployment.json');UNIT='pathquill.service';PY='/opt/pathquill/venv/bin/python';STATE='/var/lib/pathquill/store'
 PATHS=[Path(p) for p in ('/opt/pathquill','/etc/pathquill','/var/lib/pathquill','/etc/systemd/system/pathquill.service','/etc/systemd/system/pathquill.service.d')]
 def write(path,value):
     path.write_text(json.dumps(value,indent=2)+'\n');path.with_suffix('.html').write_text('<!doctype html><meta charset="utf-8"><pre>'+html.escape(json.dumps(value,indent=2))+'</pre>')
@@ -22,14 +23,14 @@ def wait(predicate,seconds=12):
         except (OSError,ValueError,KeyError,subprocess.CalledProcessError):pass
         time.sleep(.05)
     raise TimeoutError('deployment condition')
-def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml'] if p.is_file()}
+def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/closeout.py',ROOT/'tools/closeout_checks.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml'] if p.is_file()}
 mode=sys.argv[1] if len(sys.argv)>1 else None
-if not ((mode=='worker' and len(sys.argv)==4) or (mode=='orchestrate' and len(sys.argv)==2)):write(FINAL,dict(passed=False,status='invalid_invocation'))
-if mode=='orchestrate' and len(sys.argv)==2:
+if not ((mode=='worker' and len(sys.argv)==4) or (mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2)):write(FINAL,dict(passed=False,status='invalid_invocation'))
+if mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2:
     if FINAL.exists():
         previous=json.loads(FINAL.read_text())
         if previous.get('error'):
-            folder=ROOT/'evidence/deployment-attempts';folder.mkdir(exist_ok=True)
+            folder=ROOT/('evidence/closeout-attempts' if mode=='orchestrate-closeout' else 'evidence/deployment-attempts');folder.mkdir(exist_ok=True)
             write(folder/('attempt-'+uuid.uuid4().hex[:12]+'.json'),previous)
     def terminated(*_):raise InterruptedError('orchestrator_terminated')
     signal.signal(signal.SIGTERM,terminated)
@@ -39,6 +40,10 @@ if mode=='orchestrate' and len(sys.argv)==2:
         check(not any(os.path.lexists(p) for p in PATHS),'existing Pathquill installation: untouched')
         check(run(['getent','passwd','pathquill'],check=False).returncode!=0 and run(['getent','group','pathquill'],check=False).returncode!=0,'existing account: untouched')
         check(prop('LoadState')=='not-found','existing loaded service: untouched')
+        clean_vm=None
+        if mode=='orchestrate-closeout':
+            clean_vm=json.loads(Path('/run/pathquill-clean-vm.json').read_text())
+            check(clean_vm['application_absent'] and clean_vm['boot_sha256']==hashlib.sha256(Path('/proc/sys/kernel/random/boot_id').read_bytes()).hexdigest(),'missing/mismatched clean VM receipt')
         with tempfile.TemporaryDirectory(prefix='pq-deploy-') as tmp:
             tmp=Path(tmp);build=tmp/'source';build.mkdir();shutil.copytree(ROOT/'pathquill',build/'pathquill',ignore=shutil.ignore_patterns('__pycache__'));shutil.copy(ROOT/'pyproject.toml',build/'pyproject.toml')
             run(['python3','-m','venv',str(tmp/'builder')],timeout=30)
@@ -52,7 +57,11 @@ if mode=='orchestrate' and len(sys.argv)==2:
             setup=dict(wheel_sha256=hashlib.sha256(wheel.read_bytes()).hexdigest(),wheel_generator=generator,build_isolation=True)
             owned=True
             print('Installing fresh formal package and unit',flush=True)
-            run(['sh',str(ROOT/'deploy/install.sh'),str(wheel)],timeout=90,cwd='/')
+            run(['sh',str(ROOT/'deploy/install.sh'),str(wheel)],timeout=90,cwd='/',umask=0o077 if mode=='orchestrate-closeout' else 0)
+            setup['caller_umask']='077' if mode=='orchestrate-closeout' else '000'
+            for path in Path('/opt/pathquill').rglob('*'):
+                if not path.is_symlink():check(path.stat().st_uid==0 and not path.stat().st_mode & 0o022,'package is writable by non-root')
+            setup['root_owned_no_group_world_write']=True
             setup['service_uid']=pwd.getpwnam('pathquill').pw_uid
             original_config=Path('/etc/pathquill/config.json').read_bytes()
             repeated=run(['sh',str(ROOT/'deploy/install.sh'),str(wheel)],check=False,timeout=15,cwd='/')
@@ -67,16 +76,21 @@ if mode=='orchestrate' and len(sys.argv)==2:
             setup['installed_module_hashes']=modules;setup['isolated_site_packages_import']=True
             ns='pqdeploy-'+uuid.uuid4().hex[:8];run(['ip','netns','add',ns]);run(['ip','-n',ns,'link','set','lo','up']);run(['ip','-n',ns,'link','add','pqmarker0','type','dummy']);run(['ip','-n',ns,'addr','add','198.18.0.1/24','dev','pqmarker0']);run(['ip','-n',ns,'link','set','pqmarker0','up']);run(['ip','-n',ns,'route','add','198.19.0.0/24','dev','pqmarker0'])
             output=tmp/'worker.json'
-            code=run_group([sys.executable,__file__,'worker',str(output),ns],100)
+            code=run_group([sys.executable,str(ROOT/'tools/closeout.py') if mode=='orchestrate-closeout' else __file__,'worker',str(output),ns],600 if mode=='orchestrate-closeout' else 100)
             result=json.loads(output.read_text());check(code==0 and result['passed'],'worker did not pass')
-            check({c['name'] for c in result['cases']}=={'default_network_and_unprivileged_service','normal_stop_cleans_processes_and_socket','explicit_namespace_probe_and_sigkill_takeover','restart_limit_then_repair','sealed_store_no_restart_loop'},'missing deployment cases')
-            result['installation']=setup;check(initial==source(),'source changed during validation');result['source']=initial
+            required={'real_fault_recovery_export_copy_retire_same_service','32_history_refusal_seal_archive_new_store_old_authority_rejected'} if mode=='orchestrate-closeout' else {'default_network_and_unprivileged_service','normal_stop_cleans_processes_and_socket','explicit_namespace_probe_and_sigkill_takeover','restart_limit_then_repair','sealed_store_no_restart_loop'}
+            check({c['name'] for c in result['cases']}==required and all(c['passed'] for c in result['cases']),'missing/failed deployment cases')
+            result['installation']=setup
+            if clean_vm is not None:result['clean_vm_provisioning']=clean_vm
+            check(initial==source(),'source changed during validation');result['source']=initial
     except Exception as error:
         result['passed']=False;result.setdefault('error',type(error).__name__+': '+str(error).replace(str(ROOT),'<checkout>'));result['installation']=setup;result['source']=initial
     finally:
         try:
             if owned:
-                ctl('stop',UNIT,check=False);check(prop('MainPID')=='0','service still owns process: preserve installation')
+                group=prop('ControlGroup');stopped=ctl('stop',UNIT,check=False)
+                members=Path('/sys/fs/cgroup'+group)/'cgroup.procs' if group else None
+                check(cleanup_safe(stopped.returncode,prop('MainPID'),prop('ActiveState'),members.read_text() if members and members.exists() else ''),'service stop/cgroup incomplete: preserve installation')
                 ctl('reset-failed',UNIT,check=False)
                 for path in reversed(PATHS):
                     if path.is_dir():shutil.rmtree(path)

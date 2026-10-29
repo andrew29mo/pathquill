@@ -10,7 +10,7 @@ enablement, VM reboot, power loss or long-term deployment.
 
 Required: Linux with actual systemd as PID 1, Python 3.12+, Python venv/pip,
 iproute2 and root privileges for installation. On the tested Ubuntu VM,
-python3-venv supplies the required venv/pip tools. No Python runtime dependencies
+run apt-get update and install python3-venv to supply the required venv/pip tools. No Python runtime dependencies
 are declared. Wheel building uses the pyproject build backend; build isolation
 may download build tooling. Build logs/environment and the wheel hash belong in
 your own deployment records; building is not an offline/reproducible-build claim.
@@ -21,6 +21,8 @@ python3 -m venv /absolute/build-environment
 sudo sh /absolute/pathquill-checkout/deploy/install.sh /absolute/wheels/pathquill-0.0.1-py3-none-any.whl
 ```
 
+The installer fixes umask 022 before creating its root-owned venv, independent of
+the invoking administrator's mask. Private configuration/state use explicit modes.
 The installer refuses existing installation/config/data/unit paths, a loaded/vendor
 unit, or an existing
 pathquill user/group, rather than overwriting them. It is a fresh-install helper,
@@ -167,7 +169,7 @@ This suite removes only its fresh fixture installation/account/namespace;
 prerequisite OS packages remain installed. It does not enable boot startup or
 reboot/stop the shared VM. Raw private VM network state/journal is not committed.
 
-Remaining acceptance is a separate clean-VM document-driven full workflow and
-bounded sustained-operation run. No VM reboot, power loss, zero-gap boot,
+The separate clean-VM document-driven full workflow and bounded observation
+are described in [CLOSEOUT.md](CLOSEOUT.md). No VM reboot, power loss, zero-gap boot,
 automatic upgrade, native macOS daemon support or production guarantee is claimed.
 GitHub stays Private and no project license has been selected.
