@@ -116,3 +116,31 @@ No VM reboot, sudden power loss, atomic export-file publication, file cleanup,
 external-reader lease, full Linux-attribute coverage or long-term qualification
 is added. P0-4 and formal deployment remain open. GitHub stays Private and no
 project license has been selected.
+
+## P0-3 review corrections
+
+The ca0681f review found two daemon defects. An extremely large integer duration
+could overflow math.isfinite before range rejection; range validation now happens
+first, with no DB mutation on refusal. A successful export-read previously
+continued the outer loop before scheduling/progress work. It now sends the same
+sanitized-only response and then runs normal lifecycle work in that iteration.
+
+Regression covers the huge-duration RPC against the actual daemon and verifies
+its epoch remains unchanged. Six concurrent clients continuously read the READY
+snapshot while a separate read-only SQLite check requires durable control progress
+to advance during the load. This proves writer progress, not every scheduler
+subsystem under every load. Current reports retain the observed read count and
+relative progress time; no throughput or latency guarantee is inferred.
+
+Redaction validation now has positive checks, not only absence scans: synthetic
+link, address and route state must survive; interface/IP/MAC aliases must retain
+their required relationships and a distinct destination must stay distinct.
+New state observations include an allowlisted group discriminator. Previously
+stored immutable snapshots may lack this optional discriminator and are not
+rewritten. Removing all state data no longer passes the privacy fixture.
+
+Storage errors retain the existing safe-exit contract: a SQLite error may stop
+the daemon rather than always exposing a live STORAGE_ERROR interface. The
+transaction-abort tests verify rollback and preservation of the hold, followed
+by explicit repair/restart interruption. They are not physical export-transaction
+ENOSPC or power-loss qualification. File publication remains unimplemented.

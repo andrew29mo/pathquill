@@ -25,7 +25,7 @@ class ExportRecorder(ManagedRecorder):
     def request_export(self,request,source,seconds,epoch):
         self.epoch_check(epoch)
         if not isinstance(request,str) or not re.fullmatch('[A-Za-z0-9_-]{1,64}',request):raise Refused('request_id')
-        if type(seconds) not in (int,float) or not math.isfinite(seconds) or not .1<=seconds<=60:raise Refused('deadline')
+        if type(seconds) not in (int,float) or not .1<=seconds<=60 or not math.isfinite(seconds):raise Refused('deadline')
         if not isinstance(source,str):raise Refused('source_id')
         try:uuid.UUID(source)
         except ValueError:raise Refused('source_id')

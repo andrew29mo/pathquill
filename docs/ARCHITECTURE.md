@@ -120,3 +120,9 @@ See CAPACITY.md for the formal-loop failure injection and retained-data checks.
 transactional source protection, a fixed deidentified SQLite snapshot and
 conservative restart interruption. Snapshot read replies exclude raw daemon
 status. File publication and its cancellation/recovery boundaries remain P0-4.
+
+
+The P0-3 review fixes huge-duration rejection and removes scheduler bypass from
+snapshot reads. Export validation now requires positive state alias relationships
+and durable progress under concurrent reads, alongside sensitive-value absence.
+See EXPORT_SNAPSHOT.md for scope and existing safe-exit storage semantics.

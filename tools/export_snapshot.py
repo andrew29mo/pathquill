@@ -1,5 +1,5 @@
 """Synthetic sensitive source events, actual daemon request/GC/restart behavior."""
-import datetime,hashlib,html,json,os,subprocess,sys,tempfile,time,unittest
+import datetime,hashlib,html,json,os,subprocess,sys,tempfile,time,unittest,threading,sqlite3
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from pathquill.exports import ExportRecorder
@@ -41,6 +41,7 @@ try:
             base=i*100
             seed.observe(dict(kind='state_object',group='links',value=dict(index=7,attributes={'3':b'PRIVATE-NIC\0'.hex(),'1':'aabbccddeeff'})),base)
             seed.observe(dict(kind='state_object',group='addresses',value=dict(index=7,family=2,prefix=24,attributes={'1':'0a172d43'})),base+1)
+            seed.observe(dict(kind='state_object',group='routes',value=dict(family=2,dst_prefix=24,attributes={'1':'0a172d00','5':'0a172d43','4':'07000000'})),base+1.5)
             seed.observe(dict(kind='tcp',outcome='refused',free_text='<script>PRIVATE-ERROR</script>'),base+2)
             key=seed.incident(dict(endpoints=['10.23.45.67','Private.Example.','private.example','AA:BB:CC:DD:EE:FF']),base+3)
             seed.retention=.1 if i==1 else 86400;seed.finish(key,base+33,seed.epoch,base+33);keys.append(key)
@@ -60,6 +61,8 @@ try:
                 time.sleep(.01)
             raise TimeoutError('export condition')
         first=wait(lambda v:v['state']=='RECORDING');epoch=first['epoch']
+        check(call(root,'export',epoch=epoch,id=keys[0],request='huge',seconds=10**400).get('error')=='deadline','huge deadline not rejected')
+        check(status()['epoch']==epoch,'huge deadline stopped daemon')
         submitted=call(root,'export',epoch=epoch,id=keys[0],request='cancel_me',seconds=30)
         check(submitted['export']['state']=='QUEUED','not admitted')
         duplicate=call(root,'export',epoch=epoch,id=keys[0],request='cancel_me',seconds=30)
@@ -81,10 +84,35 @@ try:
         snapshot=call(root,'export-read',request='ready')
         text=json.dumps(snapshot)
         for raw in ['10.23.45.67','PRIVATE-NIC','Private.Example','private.example','aabbccddeeff','0a172d43','PRIVATE-ERROR','<script>']:check(raw not in text,'sensitive fixture leaked')
+        groups={x['group']:x['state'] for x in snapshot['export']['snapshot']['observations'] if x['kind']=='state_object'}
+        check(set(groups)=={'links','addresses','routes'},'redaction dropped state groups')
+        endpoints=snapshot['export']['snapshot']['incident']['endpoints']
+        check(groups['links']['interface']==groups['addresses']['interface']==groups['routes']['interface'],'interface aliases lost association')
+        check(groups['addresses']['address']==groups['routes']['gateway']==endpoints[0],'IP aliases lost association')
+        check(groups['routes']['destination']!=groups['routes']['gateway'] and groups['links']['mac']==endpoints[3],'distinct address or MAC relationship lost')
         check(set(snapshot)=={'ok','export'},'raw daemon status mixed with snapshot')
         call(root,'gc',epoch=epoch);check(not any(i['id']==keys[1] for i in status()['incidents']),'source not reclaimed after snapshot')
         check(call(root,'export-read',request='ready')==snapshot,'snapshot changed after GC')
-        r['cases'].append(dict(name='fixed_redacted_snapshot_survives_source_gc',observations=len(snapshot['export']['snapshot']['observations']),snapshot_digest=snapshot['export']['digest'],raw_values_absent=True,passed=True))
+        from pathquill.core import boottime
+        stop_reads=threading.Event();errors=[];counts=[0]*6
+        def read_loop(index):
+            try:
+                while not stop_reads.is_set():
+                    check(call(root,'export-read',request='ready')==snapshot,'polling snapshot changed');counts[index]+=1
+            except Exception as error:errors.append(type(error).__name__);stop_reads.set()
+        readers=[threading.Thread(target=read_loop,args=(i,),daemon=True) for i in range(6)]
+        begin=boottime()
+        for reader in readers:reader.start()
+        try:
+            time.sleep(1.2)
+            raw=sqlite3.connect('file:'+str(root/'state.db')+'?mode=ro',uri=True)
+            progress=raw.execute('SELECT progress FROM control').fetchone()[0];raw.close()
+            check(progress>=begin+.5,'snapshot reads starved writer progress')
+        finally:
+            stop_reads.set()
+            for reader in readers:reader.join(3)
+        check(not errors and sum(counts)>10 and not any(reader.is_alive() for reader in readers),'snapshot read polling failed')
+        r['cases'].append(dict(name='fixed_redacted_snapshot_survives_source_gc',observations=len(snapshot['export']['snapshot']['observations']),snapshot_digest=snapshot['export']['digest'],raw_values_absent=True,state_alias_relationships_preserved=True,concurrent_reads=sum(counts),progress_during_reads=progress-begin,passed=True))
         call(root,'export',epoch=epoch,id=keys[2],request='restart',seconds=30)
         proc.kill();proc.wait(5);proc=start();current=wait(lambda v:v['epoch']!=epoch)
         check(call(root,'export-status',request='restart')['export']['state']=='INTERRUPTED','pending job revived')

@@ -96,10 +96,10 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                         elif request.get('op')=='hold':r.hold(request.get('id'),request.get('epoch'))
                         elif request.get('op')=='release':r.release(request.get('id'),request.get('token'),request.get('epoch'))
                         elif request.get('op')!='status':raise ValueError('unknown_operation')
-                        if request.get('op')=='export-read':
-                            conn.sendall(json.dumps(dict(ok=True,export=export_result)).encode());continue
-                        incidents=[dict(id=x[0],state=x[1],coverage=x[2],recovered=bool(x[3])) for x in r.db.execute('SELECT id,state,coverage,recovered FROM incidents')]
-                        reply=dict(ok=True,export=export_result,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
+                        if request.get('op')=='export-read':reply=dict(ok=True,export=export_result)
+                        else:
+                            incidents=[dict(id=x[0],state=x[1],coverage=x[2],recovered=bool(x[3])) for x in r.db.execute('SELECT id,state,coverage,recovered FROM incidents')]
+                            reply=dict(ok=True,export=export_result,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
                         conn.sendall(json.dumps(reply).encode())
                     except Refused as error:
                         try:conn.sendall(json.dumps(dict(ok=False,error=str(error))).encode())

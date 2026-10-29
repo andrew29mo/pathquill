@@ -8,6 +8,7 @@ class ExportTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.r=ExportRecorder(self.tmp.name)
         self.r.observe(dict(kind='state_object',group='links',value=dict(index=7,attributes={'3':b'SECRET-LINK\0'.hex(),'1':'aabbccddeeff'})),0)
         self.r.observe(dict(kind='state_object',group='addresses',value=dict(index=7,family=2,prefix=24,attributes={'1':'0a172d43'})),1)
+        self.r.observe(dict(kind='state_object',group='routes',value=dict(family=2,dst_prefix=24,attributes={'1':'0a172d00','5':'0a172d43','4':'07000000'})),1.5)
         self.r.observe(dict(kind='tcp',outcome='refused',secret='<script>PRIVATE</script>'),2)
         self.key=self.r.incident(dict(endpoints=['10.23.45.67','Secret.Example.','secret.example','AA:BB:CC:DD:EE:FF']),3)
         self.r.finish(self.key,33,self.r.epoch,33)
@@ -34,6 +35,14 @@ class ExportTests(unittest.TestCase):
         self.r.advance_exports();self.r.advance_exports();out=self.r.read_snapshot('request');text=json.dumps(out)
         for value in ['SECRET','PRIVATE','secret.example','10.23.45.67','aabbccddeeff','0a172d43','<script>']:self.assertNotIn(value,text)
         self.assertEqual(out['snapshot']['incident']['endpoints'][1],out['snapshot']['incident']['endpoints'][2])
+        groups={x['group']:x['state'] for x in out['snapshot']['observations'] if x['kind']=='state_object'}
+        self.assertEqual(set(groups),{'links','addresses','routes'})
+        self.assertEqual(groups['links']['interface'],groups['addresses']['interface'])
+        self.assertEqual(groups['links']['interface'],groups['routes']['interface'])
+        self.assertEqual(groups['addresses']['address'],groups['routes']['gateway'])
+        self.assertEqual(groups['addresses']['address'],out['snapshot']['incident']['endpoints'][0])
+        self.assertNotEqual(groups['routes']['destination'],groups['routes']['gateway'])
+        self.assertEqual(groups['links']['mac'],out['snapshot']['incident']['endpoints'][3])
         self.r.remove(self.key,self.r.epoch);self.assertEqual(self.r.read_snapshot('request'),out)
     def test_restart_interrupts_and_stale_cancel_rejected(self):
         self.request();epoch=self.r.epoch;self.r.close();self.r=ExportRecorder(self.tmp.name)
@@ -106,3 +115,8 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(self.r.export_status('request')['state'],'FAILED')
         self.assertEqual(self.r.db.execute('SELECT count(*) FROM holds').fetchone()[0],0)
         self.assertEqual(self.r.db.execute('SELECT count(*) FROM incidents WHERE id=?',(self.key,)).fetchone()[0],1)
+
+    def test_huge_integer_deadline_is_refused_without_mutation(self):
+        with self.assertRaisesRegex(Refused,'deadline'):self.request(seconds=10**400)
+        self.assertEqual(self.r.db.execute('SELECT count(*) FROM exports').fetchone()[0],0)
+        self.assertEqual(self.r.db.execute('SELECT count(*) FROM holds').fetchone()[0],0)
