@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "mvp_qualified": false,
+  "source": {
+    "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pathquill/core.py": "ee1ab9164a1bd2621628c44140796db7fda8f8e73e5d78e5f20cff82180a7c50",
+    "pathquill/netlink.py": "aa6addf1c8e81a4e2504f51528f68840cda93a1bf65c2c8ffd79e07dd7a14af8",
+    "pathquill/recorder.py": "b6dad75299b60a35baa1cc260136e459d49d691ffa036569f718f621af743369",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
+    "tests/test_netlink.py": "d1a3b040066837f50b1a09423b0ed5055ed03401d590d277843825d976c2972b",
+    "tests/test_recorder.py": "0612c18eae9055e4400798dcf5364dad8e465a65a84b3c40205e2858c5738d80",
+    "tools/continued.py": "500cb1cba7a4b28cd9fb36428fac4f0c0388db7ef635604ea31d63fdc8d91328"
+  },
+  "cases": [
+    {
+      "name": "subscribed_dump_and_notification",
+      "dumps": [
+        {
+          "kind": 18,
+          "count": 2,
+          "start": 85.436205928,
+          "end": 85.436272224
+        },
+        {
+          "kind": 22,
+          "count": 3,
+          "start": 85.436272516,
+          "end": 85.436286475
+        },
+        {
+          "kind": 26,
+          "count": 7,
+          "start": 85.436286725,
+          "end": 85.436314852
+        }
+      ],
+      "notification_count": 5,
+      "passed": true
+    },
+    {
+      "name": "real_TCP_DNS_trigger_with_persistent_prebuffer",
+      "observations": 5,
+      "passed": true
+    },
+    {
+      "name": "filesystem_full",
+      "repair_reopen": true,
+      "passed": true
+    },
+    {
+      "name": "filesystem_readonly_startup_refusal",
+      "repair_reopen": true,
+      "passed": true
+    }
+  ],
+  "limits": [
+    "No power loss, suspend, real kernel ENOBUFS or long-term stability qualification",
+    "Dump data and interleaved notifications are interval evidence, not an atomic current-state reconstruction",
+    "No automatic retention, full daemon/systemd or bounded export-file publication yet"
+  ],
+  "tests": 13
+}

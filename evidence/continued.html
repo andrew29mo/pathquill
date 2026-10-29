@@ -1,0 +1,63 @@
+<!doctype html><meta charset="utf-8"><pre>{
+  &quot;passed&quot;: true,
+  &quot;mvp_qualified&quot;: false,
+  &quot;source&quot;: {
+    &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;pathquill/core.py&quot;: &quot;ee1ab9164a1bd2621628c44140796db7fda8f8e73e5d78e5f20cff82180a7c50&quot;,
+    &quot;pathquill/netlink.py&quot;: &quot;aa6addf1c8e81a4e2504f51528f68840cda93a1bf65c2c8ffd79e07dd7a14af8&quot;,
+    &quot;pathquill/recorder.py&quot;: &quot;b6dad75299b60a35baa1cc260136e459d49d691ffa036569f718f621af743369&quot;,
+    &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
+    &quot;tests/test_netlink.py&quot;: &quot;d1a3b040066837f50b1a09423b0ed5055ed03401d590d277843825d976c2972b&quot;,
+    &quot;tests/test_recorder.py&quot;: &quot;0612c18eae9055e4400798dcf5364dad8e465a65a84b3c40205e2858c5738d80&quot;,
+    &quot;tools/continued.py&quot;: &quot;500cb1cba7a4b28cd9fb36428fac4f0c0388db7ef635604ea31d63fdc8d91328&quot;
+  },
+  &quot;cases&quot;: [
+    {
+      &quot;name&quot;: &quot;subscribed_dump_and_notification&quot;,
+      &quot;dumps&quot;: [
+        {
+          &quot;kind&quot;: 18,
+          &quot;count&quot;: 2,
+          &quot;start&quot;: 85.436205928,
+          &quot;end&quot;: 85.436272224
+        },
+        {
+          &quot;kind&quot;: 22,
+          &quot;count&quot;: 3,
+          &quot;start&quot;: 85.436272516,
+          &quot;end&quot;: 85.436286475
+        },
+        {
+          &quot;kind&quot;: 26,
+          &quot;count&quot;: 7,
+          &quot;start&quot;: 85.436286725,
+          &quot;end&quot;: 85.436314852
+        }
+      ],
+      &quot;notification_count&quot;: 5,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;real_TCP_DNS_trigger_with_persistent_prebuffer&quot;,
+      &quot;observations&quot;: 5,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;filesystem_full&quot;,
+      &quot;repair_reopen&quot;: true,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;filesystem_readonly_startup_refusal&quot;,
+      &quot;repair_reopen&quot;: true,
+      &quot;passed&quot;: true
+    }
+  ],
+  &quot;limits&quot;: [
+    &quot;No power loss, suspend, real kernel ENOBUFS or long-term stability qualification&quot;,
+    &quot;Dump data and interleaved notifications are interval evidence, not an atomic current-state reconstruction&quot;,
+    &quot;No automatic retention, full daemon/systemd or bounded export-file publication yet&quot;
+  ],
+  &quot;tests&quot;: 13
+}</pre>

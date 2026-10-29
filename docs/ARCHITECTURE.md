@@ -62,3 +62,15 @@ JSON bytes are hashed, then escaped into HTML. This hash is not provenance proof
 Decision: continue only through these bounded gaps; existing evidence supports
 core primitives, not whole-service completeness. No autostart, zero-gap boot,
 power-loss recovery, WAN diagnosis or long-term stability claim is authorized.
+
+## Continuation supersedes the initial exploration status
+
+See [CONTINUED.md](CONTINUED.md) for current evidence and remaining gates.
+The original four outcomes above are historical. The current Recorder adds a
+persistent prebuffer and capture copies, real TCP/DNS trigger calls, real dump
+interval evidence, filesystem ENOSPC/refusal-and-repair and normal VM reboot.
+It does not yet implement the full daemon. Admission and prebuffer copy are a
+single transaction; failed capacity admission rolls back the new incident.
+Dedicated export file budgets and retention are deferred until a formal file
+export interface exists. Raw local observations stay private; only a fixed
+allowlist can leave the recorder through the current export API.
