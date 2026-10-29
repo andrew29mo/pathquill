@@ -101,3 +101,10 @@ Milestone review tightens observed recovery to post-incident probe starts for
 all targets, preserves generation rejection before DB/health mutation, and uses
 one fresh post-commit decision time at deadline boundaries. See MILESTONE1.md for
 the exact VM overlap and persisted barrier checks and remaining test limits.
+
+## Capacity/retention stage
+
+[CAPACITY.md](CAPACITY.md) supersedes the original fail-on-logical-capacity and
+no-retention behavior. ManagedRecorder separates bounded control progress from
+data payload admission, conservatively anchors retention, and performs atomic
+eligibility-checked GC. Export-file lifecycle remains deferred.

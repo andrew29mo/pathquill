@@ -97,7 +97,7 @@ try:
         raw=sqlite3.connect('file:'+str(tmp/'recovery/state.db')+'?mode=ro',uri=True)
         progress=raw.execute('SELECT seq,t,body FROM observations WHERE seq=?',(completed['committed'],)).fetchone();raw.close()
         check(progress is not None and progress[1]>=end_time and json.loads(progress[2])['kind']=='progress','no persisted deadline barrier')
-        sealed_observed=boottime();check(sealed_observed>=end_time and end_time-first_time>=30,'sealed before real deadline')
+        sealed_observed=boottime();check(sealed_observed>=end_time and end_time>=first_time+30,'sealed before real deadline')
         live=False;thread.join(2);server.close();server=None
         proc.terminate();check(proc.wait(5)==0,'shutdown failed');check(not (tmp/'recovery/control.sock').exists(),'socket cleanup failed')
         r['cases'].append(dict(name='real_failure_recovery_and_committed_seal',committed=completed['committed'],window_seconds=end_time-first_time,persisted_barrier_sequence=progress[0],persisted_barrier_after_deadline=progress[1]-end_time,sealed_observed_after_deadline=sealed_observed-end_time,incidents=completed['incidents'],passed=True))

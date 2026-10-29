@@ -1,0 +1,89 @@
+<!doctype html><meta charset="utf-8"><pre>{
+  &quot;passed&quot;: true,
+  &quot;mvp_qualified&quot;: false,
+  &quot;cases&quot;: [
+    {
+      &quot;name&quot;: &quot;full_capture_seals_and_held_retention_survives_restart&quot;,
+      &quot;before&quot;: {
+        &quot;loss&quot;: 1,
+        &quot;refusals&quot;: 0,
+        &quot;progress&quot;: 4440.994886241,
+        &quot;mode&quot;: &quot;CAPACITY&quot;,
+        &quot;logical_bytes&quot;: 4054,
+        &quot;data_limit&quot;: 4096,
+        &quot;prebuffer_oldest&quot;: 4440.609423102,
+        &quot;prebuffer_latest&quot;: 4440.968084616,
+        &quot;ring_limit&quot;: 1024,
+        &quot;incidents&quot;: 1,
+        &quot;holds&quot;: [],
+        &quot;filesystem_bytes&quot;: 69632,
+        &quot;free_pages&quot;: 0
+      },
+      &quot;sealed_coverage&quot;: &quot;PARTIAL&quot;,
+      &quot;after_gc&quot;: {
+        &quot;loss&quot;: 2224,
+        &quot;refusals&quot;: 0,
+        &quot;progress&quot;: 4474.171687822,
+        &quot;mode&quot;: &quot;CAPACITY&quot;,
+        &quot;logical_bytes&quot;: 902,
+        &quot;data_limit&quot;: 4096,
+        &quot;prebuffer_oldest&quot;: 4440.757530631,
+        &quot;prebuffer_latest&quot;: 4471.015422445,
+        &quot;ring_limit&quot;: 1024,
+        &quot;incidents&quot;: 0,
+        &quot;holds&quot;: [],
+        &quot;filesystem_bytes&quot;: 69632,
+        &quot;free_pages&quot;: 2
+      },
+      &quot;active_delete_rejected&quot;: true,
+      &quot;held_delete_rejected&quot;: true,
+      &quot;stale_release_rejected&quot;: true,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;reclaimed_capacity_reused_by_real_probe&quot;,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;real_tmpfs_ENOSPC_formal_daemon&quot;,
+      &quot;mutation_refused&quot;: true,
+      &quot;explicit_restart_repaired&quot;: true,
+      &quot;stale_gc_rejected&quot;: true,
+      &quot;passed&quot;: true
+    }
+  ],
+  &quot;environment&quot;: {
+    &quot;system&quot;: &quot;Linux&quot;,
+    &quot;release&quot;: &quot;6.8.0-117-generic&quot;,
+    &quot;python&quot;: &quot;3.12.3&quot;,
+    &quot;utc&quot;: &quot;2026-10-29T04:00:58.468587+00:00&quot;
+  },
+  &quot;limits&quot;: [
+    &quot;Logical budgets, not filesystem quota or guaranteed writes on a physically full filesystem&quot;,
+    &quot;Normal daemon process restart, not VM reboot or power loss&quot;,
+    &quot;Hold/release tests reservation primitives; file export lifecycle not implemented&quot;,
+    &quot;Cross-boot reanchoring is unit-tested with altered metadata, not a real VM reboot&quot;
+  ],
+  &quot;tests&quot;: 37,
+  &quot;source&quot;: {
+    &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;pathquill/cli.py&quot;: &quot;f731948c725f55fd445626ea3a87c512672789c0da02e47703571cdf2e41ae60&quot;,
+    &quot;pathquill/core.py&quot;: &quot;23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb&quot;,
+    &quot;pathquill/daemon.py&quot;: &quot;45dcbe1f6179dc11e62e146af83bd136ff8a064960368873fb5d263dd3142c10&quot;,
+    &quot;pathquill/managed.py&quot;: &quot;c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91&quot;,
+    &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
+    &quot;pathquill/probes.py&quot;: &quot;042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169&quot;,
+    &quot;pathquill/recorder.py&quot;: &quot;43dc3fc2b5262222513ee76d08daa6fd610245059c09b54a80d5c0fed9ce23f2&quot;,
+    &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
+    &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
+    &quot;tests/test_daemon.py&quot;: &quot;78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513&quot;,
+    &quot;tests/test_managed.py&quot;: &quot;dc5e85bd1536f5e2d5426bf276cda058f41844653729dcb085adb85fa8bbb86a&quot;,
+    &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
+    &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
+    &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
+    &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
+    &quot;tools/capacity.py&quot;: &quot;edb3d38e49f4c95cbeb73d7e7fdc8643b855f87d97261dbd0df5a0266a4dbc2a&quot;,
+    &quot;pyproject.toml&quot;: &quot;a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123&quot;
+  }
+}</pre>

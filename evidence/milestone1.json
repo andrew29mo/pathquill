@@ -6,24 +6,24 @@
     "release": "6.8.0-117-generic",
     "machine": "aarch64",
     "python": "3.12.3",
-    "utc": "2026-10-29T03:26:44.563444+00:00"
+    "utc": "2026-10-29T04:00:59.203487+00:00"
   },
   "cases": [
     {
       "name": "real_address_add_delete_and_stale_result",
       "notifications": 2,
       "stale": 1,
-      "add_observation_seconds": 0.023341737999999168,
+      "add_observation_seconds": 0.04859455499990872,
       "stale_health_unchanged": true,
       "stale_not_persisted": true,
-      "mutation_begin": 2386.017374881,
-      "changed_observed": 2386.040716453,
+      "mutation_begin": 4440.893658076,
+      "changed_observed": 4440.942252422,
       "slow_result": {
         "target": 1,
         "generation": 1,
         "outcome": "timeout",
-        "start": 2385.964074067,
-        "end": 2387.46645414,
+        "start": 4440.832124465,
+        "end": 4442.333256825,
         "stale": true
       },
       "writer_progress_delta": 22,
@@ -33,14 +33,14 @@
     },
     {
       "name": "real_failure_recovery_and_committed_seal",
-      "committed": 1805,
+      "committed": 1807,
       "window_seconds": 30.0,
-      "persisted_barrier_sequence": 1805,
-      "persisted_barrier_after_deadline": 0.02058009900019897,
-      "sealed_observed_after_deadline": 0.026309189000130573,
+      "persisted_barrier_sequence": 1807,
+      "persisted_barrier_after_deadline": 0.0429976200002784,
+      "sealed_observed_after_deadline": 0.04941833500015491,
       "incidents": [
         {
-          "id": "1a25e47f-b4c4-4473-977d-4391ba9c6c51",
+          "id": "6e770bd1-b8e7-439a-a952-0b625c2575f8",
           "state": "SEALED",
           "coverage": "UNKNOWN",
           "recovered": true
@@ -59,12 +59,13 @@
     "DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim",
     "No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification"
   ],
-  "tests": 29,
+  "tests": 37,
   "source": {
     "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "pathquill/cli.py": "0ab04f1052500c04575a8139a9048ec0e4803c5dbf10c0c2d2c2d2291206a2e2",
+    "pathquill/cli.py": "f731948c725f55fd445626ea3a87c512672789c0da02e47703571cdf2e41ae60",
     "pathquill/core.py": "23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb",
-    "pathquill/daemon.py": "0ab375df918035448b271bac57c163dae2ce2721874e6cbeeecc09ba2d0f0f20",
+    "pathquill/daemon.py": "45dcbe1f6179dc11e62e146af83bd136ff8a064960368873fb5d263dd3142c10",
+    "pathquill/managed.py": "c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91",
     "pathquill/netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
     "pathquill/probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
     "pathquill/recorder.py": "43dc3fc2b5262222513ee76d08daa6fd610245059c09b54a80d5c0fed9ce23f2",
@@ -72,11 +73,12 @@
     "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
     "tests/test_daemon.py": "78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513",
+    "tests/test_managed.py": "dc5e85bd1536f5e2d5426bf276cda058f41844653729dcb085adb85fa8bbb86a",
     "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
     "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
     "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
     "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
-    "tools/milestone1.py": "8234d84c2a0642b99fca840958295ac24665985c7b281f346ef4666d615ab4ba",
+    "tools/milestone1.py": "c93b2b53fda546f89f46d82b7f25987715a9514cc890a25858bb59f5448456a2",
     "pyproject.toml": "a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123"
   }
 }
