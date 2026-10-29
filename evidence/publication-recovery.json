@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "mvp_qualified": false,
+  "cases": [
+    {
+      "name": "rename_completed_adopted_without_rewrite",
+      "restart_ready_seconds": 0.09593774899985874,
+      "files_unchanged": true,
+      "passed": true
+    },
+    {
+      "name": "cleanup_killed_after_unlink_resumes_without_early_release",
+      "reserved_bytes_while_incomplete": 848,
+      "remaining_files_at_second_kill": 2,
+      "passed": true
+    },
+    {
+      "name": "unknown_stage_preserved",
+      "files_preserved": 4,
+      "passed": true
+    },
+    {
+      "name": "cancel_cleanup_survives_restart",
+      "passed": true
+    }
+  ],
+  "environment": {
+    "system": "Linux",
+    "release": "6.8.0-117-generic",
+    "python": "3.12.3",
+    "utc": "2026-10-29T06:32:09.893924+00:00"
+  },
+  "limits": [
+    "Test-only wrapper pauses at formal rename/unlink boundaries, then parent sends actual SIGKILL; not an unmodified-launch timing experiment",
+    "Synthetic private source; no production incidents",
+    "Process restart only: no VM reboot, power loss or zero-gap boot qualification",
+    "Partial writes and fsync/SQLite failure are unit-injected, not physical disk failure",
+    "Private owned store; malicious same-UID mutation and published-artifact deletion/reader leases remain outside scope"
+  ],
+  "tests": 85,
+  "source": {
+    "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pathquill/cli.py": "394a7bc92840d73cea23aa63a09f15078921491214060eacd4af32c0892ddfe9",
+    "pathquill/core.py": "23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb",
+    "pathquill/daemon.py": "e55c7adb06e2cf11efd930abf4634a4e869a7d40882f0cbf9ae5a5841e864846",
+    "pathquill/exports.py": "43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c",
+    "pathquill/managed.py": "c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91",
+    "pathquill/netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
+    "pathquill/probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
+    "pathquill/publication.py": "77017ac187d46d026c4d0ffb199d6bb6953a8e4c13885e3ff83486f55a906dd1",
+    "pathquill/recorder.py": "3ffe383585ce5b71b8c315ce7a15ee8c417700ecfb4b6a04a8ca8800f36b2639",
+    "pathquill/redaction.py": "7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c",
+    "pathquill/state.py": "166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
+    "tests/test_daemon.py": "78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513",
+    "tests/test_exports.py": "46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650",
+    "tests/test_managed.py": "5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26",
+    "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
+    "tests/test_publication.py": "38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a",
+    "tests/test_publication_recovery.py": "52f7f10e81868c9a8817ef94d98553435cd3725b6513eef2617a943ecb4014cd",
+    "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
+    "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
+    "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
+    "tests/test_supervision.py": "7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39",
+    "tools/publication_recovery.py": "aced1e2956672dd54c87f4ae4115afd5a65b84e58006ff36e0abd301f95c42bb",
+    "tools/recovery_daemon.py": "3d093cbdeea78754589d9a11c5478ac53a8786c649ff56a6be7a77fdbd4d1153",
+    "tools/supervision.py": "e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1",
+    "pyproject.toml": "a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123"
+  },
+  "orchestrator_cleanup": true
+}

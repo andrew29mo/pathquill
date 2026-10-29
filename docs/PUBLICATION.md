@@ -1,9 +1,12 @@
-# Fixed package publication (P0-4a / P0-4b)
+# Fixed package publication (P0-4a / P0-4b, extended by P0-4c)
 
 The formal daemon uses PublicationRecorder, extending ExportRecorder. An explicit
 `export-publish` operation publishes the existing sanitized SQLite snapshot as a
 private on-disk package. Publication does not reread source incidents or acquire
 new source references. Source GC remains independent after SNAPSHOT_READY.
+
+P0-4c now adds [restart reconciliation and cleanup](PUBLICATION_RECOVERY.md).
+The publication contract below remains the foundation.
 
 ## Contract and cancellation
 
@@ -18,7 +21,7 @@ All mutation requests require the current writer epoch.
 
 ```text
 SNAPSHOT_READY --export-publish--> PREPARING --> PUBLISHED
-                                      \--> BLOCKED
+                                      \--> BLOCKED / CLEANUP_PENDING --> CLEANED
 SNAPSHOT_READY --export-cancel--> CANCELLED (publication refused)
 ```
 
@@ -26,8 +29,10 @@ PREPARING is a durable publication intent written before filesystem work. The
 single writer serializes publish and cancel. Cancellation processed before
 publication removes the snapshot and prevents publication. Once PUBLISHED,
 export-cancel refuses with already_published and does not erase files or the
-snapshot. PREPARING/BLOCKED refuses cancellation and retry because publication
-may have crossed the rename boundary. No published-artifact deletion API exists
+snapshot. Cancellation of an interrupted publication first reconciles its files: a valid
+final refuses as already_published; known unpublished work enters durable
+CLEANUP_PENDING with outcome CANCELLED. Unknown layouts remain BLOCKED. Retry
+never restarts interrupted/cleaned publication under the old request ID. No published-artifact deletion API exists
 in this slice. A cancel queued during synchronous publication can run only after
 that operation; there is no interruptible I/O or bounded cancellation latency.
 The deadline is checked before work and immediately before rename; blocking
@@ -52,10 +57,10 @@ Unsupported platforms/filesystems fail closed. This is namespace atomicity for
 a complete package, not a single transaction across SQLite and the filesystem.
 
 A crash or error after rename can leave a complete visible package without a
-successful reply. Unknown completion is BLOCKED, not silently retried or called
-success. Restart conservatively changes PREPARING to BLOCKED. Automatic
-reconciliation, interrupted-file cleanup and deletion are P0-4c/d, not delivered
-here. Keep the private store inaccessible to other users. Malicious same-UID
+successful reply. Unknown or mismatched completion is BLOCKED, not silently retried or called
+success. Restart and explicit reconciliation can adopt a verified complete final
+or authorize cleanup of known staging. Cleanup is bounded and restartable;
+published-artifact deletion remains deferred. Keep the private store inaccessible to other users. Malicious same-UID
 modification and an administrator replacing files concurrently are outside this
 trust boundary; this is not an untrusted shared output directory.
 
@@ -69,7 +74,9 @@ packages to make room, and does not follow symlinks or accept nested directories
 or multiply linked files during accounting. Unexpected entry types/counts refuse admission; other regular-file bytes still count.
 Logical lengths exclude allocated blocks, filesystem metadata and SQLite size;
 these limits are not disk quotas or guaranteed capacity reservations against
-other programs. Published files/history are not automatically reclaimed.
+other programs. Published files/history are not automatically reclaimed. Interrupted staging
+retains its full reserved bytes until cleanup and its final DB transaction
+complete; unresolved cleanup blocks new publication.
 
 Before intent, directory creation/accounting I/O failures return the fixed
 publication_unavailable error without a publication record; repair permits retry
@@ -77,8 +84,8 @@ within the original deadline. After intent, write/sync/rename failures retain
 intent, bytes and any owned files as BLOCKED, return publication_incomplete,
 and prevent further publication.
 SQLite failure may instead safely exit the daemon under the existing storage
-contract; it cannot return a successful publication reply. Repair/cleanup is
-not automated in this slice. The read-only snapshot can remain available; do not
+contract; it cannot return a successful publication reply. Known interrupted
+staging can now be cleaned through P0-4c; unknown data requires operator review. The read-only snapshot can remain available; do not
 manually delete files and assume that also reconciles the ledger.
 
 ## CLI and evidence
@@ -118,9 +125,10 @@ latency guarantee. The parent invalidates old success, bounds worker execution
 and publishes the final verification report only after group cleanup. These
 verification reports are distinct from product packages.
 
-No crash-at-rename VM scenario, automatic recovery/cleanup, external-reader
-lease, VM reboot, power-loss durability, zero-gap boot or long-term qualification
-is claimed. GitHub remains Private; no project license is selected.
+Before/after-rename and cleanup process-crash evidence is now documented in
+PUBLICATION_RECOVERY.md. No crash inside the kernel rename operation, external-
+reader lease, VM reboot, power-loss durability, zero-gap boot or long-term
+qualification is claimed. GitHub remains Private; no project license is selected.
 
 ## P0-4a/b review corrections
 
@@ -129,7 +137,7 @@ publication_unavailable error through the formal RPC/CLI. No publication intent
 or payload files are created in this branch (an empty packages directory may
 exist); after repair the same request may retry against its original snapshot
 and deadline. This differs from publication_incomplete after intent, which
-remains conservatively BLOCKED. Directory creation ENOSPC is unit-injected;
+remains conservatively BLOCKED until checked by reconciliation. Directory creation ENOSPC is unit-injected;
 the VM exercises an actual unreadable package directory and repair with the
 formal daemon/CLI. Neither is a physical media-failure qualification.
 
@@ -139,4 +147,5 @@ and positively requires useful sanitized fixture content. An empty self-consiste
 package cannot pass solely by omitting sensitive strings. Regressions also
 exercise expiry after staging (no final name) and a destination collision through
 the full publication method, preserving the prior destination unchanged.
-These additions do not qualify crash-at-rename recovery or automated cleanup.
+Those P0-4a/b review additions did not themselves qualify crash recovery or
+automated cleanup; subsequent P0-4c evidence is documented separately.

@@ -135,3 +135,14 @@ and Linux no-replace directory publication. Cancellation is serialized at the
 writer boundary; ambiguous completion blocks without automatic cleanup. Fixed
 file-byte/count limits cover staging and final packages. See PUBLICATION.md for
 contracts, trust boundaries and remaining P0-4c/d recovery/cleanup work.
+
+## P0-4c recovery and cleanup
+
+The formal recorder reconciles publication records at startup and via an
+epoch-bound CLI operation. Verified final packages are adopted without rewrite.
+Known staging uses persisted directory identity and a per-file cleanup inventory;
+only captured matching files may be removed, one per scheduler turn. Full byte
+reservation remains until parent fsync and transactional CLEANED/snapshot release.
+Unknown layouts remain BLOCKED. A durable delivered marker prevents missing
+published artifacts from later being mistaken for abandoned unpublished work.
+See PUBLICATION_RECOVERY.md for current contracts and scoped process-crash VM evidence.

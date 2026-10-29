@@ -1,11 +1,12 @@
 # Pathquill
 
-Private Linux network incident recorder, through fixed snapshots and atomic package publication P0-4a/P0-4b.
+Private Linux network incident recorder, through fixed snapshots and atomic package publication/recovery P0-4c.
 No project license has been selected. The formal daemon now collects and
 reconstructs state, schedules bounded probes and drives incident lifecycle;
 capacity and retention are implemented; durable deidentified snapshots and
-JSON/HTML package publication are available. Automatic publication
-recovery/cleanup and deployment qualification remain incomplete.
+JSON/HTML package publication, interrupted-publication reconciliation and
+conservative staging cleanup are available. Deployment qualification remains
+incomplete. See [recovery contract and evidence](docs/PUBLICATION_RECOVERY.md).
 See [publication contract and evidence](docs/PUBLICATION.md),
 [snapshot contract and evidence](docs/EXPORT_SNAPSHOT.md), and
 [capacity contract and evidence](docs/CAPACITY.md).

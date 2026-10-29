@@ -61,7 +61,7 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(Refused,'private_package_directory'):self.publish()
     def test_restart_blocks_uncertain_intent_and_rejects_old_epoch(self):
         old=self.r.epoch
-        with self.r.db:self.r.db.execute("INSERT INTO publications VALUES('secret_request','opaque','PREPARING',100,'digest')")
+        with self.r.db:self.r.db.execute("INSERT INTO publications(request,package,state,bytes,digest) VALUES('secret_request','opaque','PREPARING',100,'digest')")
         self.r.close();self.r=PublicationRecorder(self.tmp.name)
         self.assertEqual(self.r.publication_status('secret_request')['state'],'BLOCKED')
         with self.assertRaisesRegex(Refused,'stale_epoch'):self.r.publish_export('secret_request',old)
@@ -84,7 +84,7 @@ class PublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(Refused,'publication_incomplete'):self.publish()
         status=self.r.publication_status('secret_request');self.assertEqual(status['state'],'BLOCKED')
         self.assertTrue((self.r.root/'packages'/status['package']/'manifest.json').exists())
-        with self.assertRaisesRegex(Refused,'reconciliation'):self.r.cancel_export('secret_request',self.r.epoch)
+        with self.assertRaisesRegex(Refused,'already_published'):self.r.cancel_export('secret_request',self.r.epoch)
     def test_published_survives_restart_unchanged(self):
         result=self.publish();old=self.r.epoch;self.r.close();self.r=PublicationRecorder(self.tmp.name)
         self.assertEqual(self.publish(),result)
@@ -102,8 +102,9 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.r.publication_status('secret_request')['state'],'PREPARING')
         package=self.r.publication_status('secret_request')['package']
         self.assertTrue((self.r.root/'packages'/package/'snapshot.json').exists())
+        with self.r.db:self.r.db.execute('DROP TRIGGER fail_publish')
         self.r.close();self.r=PublicationRecorder(self.tmp.name)
-        self.assertEqual(self.r.publication_status('secret_request')['state'],'BLOCKED')
+        self.assertEqual(self.r.publication_status('secret_request')['state'],'PUBLISHED')
 
     def test_expiry_after_staging_does_not_publish(self):
         with patch('pathquill.publication.boottime',side_effect=[0,float('inf')]):

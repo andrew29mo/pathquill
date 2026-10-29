@@ -1,0 +1,72 @@
+<!doctype html><meta charset="utf-8"><pre>{
+  &quot;passed&quot;: true,
+  &quot;mvp_qualified&quot;: false,
+  &quot;cases&quot;: [
+    {
+      &quot;name&quot;: &quot;rename_completed_adopted_without_rewrite&quot;,
+      &quot;restart_ready_seconds&quot;: 0.09593774899985874,
+      &quot;files_unchanged&quot;: true,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;cleanup_killed_after_unlink_resumes_without_early_release&quot;,
+      &quot;reserved_bytes_while_incomplete&quot;: 848,
+      &quot;remaining_files_at_second_kill&quot;: 2,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;unknown_stage_preserved&quot;,
+      &quot;files_preserved&quot;: 4,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;cancel_cleanup_survives_restart&quot;,
+      &quot;passed&quot;: true
+    }
+  ],
+  &quot;environment&quot;: {
+    &quot;system&quot;: &quot;Linux&quot;,
+    &quot;release&quot;: &quot;6.8.0-117-generic&quot;,
+    &quot;python&quot;: &quot;3.12.3&quot;,
+    &quot;utc&quot;: &quot;2026-10-29T06:32:09.893924+00:00&quot;
+  },
+  &quot;limits&quot;: [
+    &quot;Test-only wrapper pauses at formal rename/unlink boundaries, then parent sends actual SIGKILL; not an unmodified-launch timing experiment&quot;,
+    &quot;Synthetic private source; no production incidents&quot;,
+    &quot;Process restart only: no VM reboot, power loss or zero-gap boot qualification&quot;,
+    &quot;Partial writes and fsync/SQLite failure are unit-injected, not physical disk failure&quot;,
+    &quot;Private owned store; malicious same-UID mutation and published-artifact deletion/reader leases remain outside scope&quot;
+  ],
+  &quot;tests&quot;: 85,
+  &quot;source&quot;: {
+    &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;pathquill/cli.py&quot;: &quot;394a7bc92840d73cea23aa63a09f15078921491214060eacd4af32c0892ddfe9&quot;,
+    &quot;pathquill/core.py&quot;: &quot;23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb&quot;,
+    &quot;pathquill/daemon.py&quot;: &quot;e55c7adb06e2cf11efd930abf4634a4e869a7d40882f0cbf9ae5a5841e864846&quot;,
+    &quot;pathquill/exports.py&quot;: &quot;43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c&quot;,
+    &quot;pathquill/managed.py&quot;: &quot;c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91&quot;,
+    &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
+    &quot;pathquill/probes.py&quot;: &quot;042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169&quot;,
+    &quot;pathquill/publication.py&quot;: &quot;77017ac187d46d026c4d0ffb199d6bb6953a8e4c13885e3ff83486f55a906dd1&quot;,
+    &quot;pathquill/recorder.py&quot;: &quot;3ffe383585ce5b71b8c315ce7a15ee8c417700ecfb4b6a04a8ca8800f36b2639&quot;,
+    &quot;pathquill/redaction.py&quot;: &quot;7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c&quot;,
+    &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
+    &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
+    &quot;tests/test_daemon.py&quot;: &quot;78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513&quot;,
+    &quot;tests/test_exports.py&quot;: &quot;46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650&quot;,
+    &quot;tests/test_managed.py&quot;: &quot;5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26&quot;,
+    &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
+    &quot;tests/test_publication.py&quot;: &quot;38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a&quot;,
+    &quot;tests/test_publication_recovery.py&quot;: &quot;52f7f10e81868c9a8817ef94d98553435cd3725b6513eef2617a943ecb4014cd&quot;,
+    &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
+    &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
+    &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
+    &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
+    &quot;tools/publication_recovery.py&quot;: &quot;aced1e2956672dd54c87f4ae4115afd5a65b84e58006ff36e0abd301f95c42bb&quot;,
+    &quot;tools/recovery_daemon.py&quot;: &quot;3d093cbdeea78754589d9a11c5478ac53a8786c649ff56a6be7a77fdbd4d1153&quot;,
+    &quot;tools/supervision.py&quot;: &quot;e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1&quot;,
+    &quot;pyproject.toml&quot;: &quot;a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123&quot;
+  },
+  &quot;orchestrator_cleanup&quot;: true
+}</pre>
