@@ -16,11 +16,16 @@ if fault in ('before_rename','after_rename'):
         rename(source,destination)
         if fault=='after_rename':pause()
     publication.rename_new=boundary
-elif fault=='cleanup_unlink':
+elif fault in ('cleanup_unlink','retire_unlink'):
     def boundary(path,*args,**kwargs):
         result=unlink(path,*args,**kwargs)
-        if path.parent.name.startswith('.stage-'):pause()
+        if (fault=='cleanup_unlink' and path.parent.name.startswith('.stage-')) or (fault=='retire_unlink' and path.parent.parent.name=='packages' and not path.parent.name.startswith('.stage-')):pause()
         return result
     Path.unlink=boundary
+elif fault=='seal_commit':
+    seal=publication.PublicationRecorder.seal_store
+    def boundary(self,*args,**kwargs):
+        result=seal(self,*args,**kwargs);pause();return result
+    publication.PublicationRecorder.seal_store=boundary
 else:raise SystemExit('unknown test boundary')
 runpy.run_module('pathquill.daemon',run_name='__main__')

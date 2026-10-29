@@ -150,5 +150,5 @@ ENOSPC or power-loss qualification. File publication remains unimplemented.
 P0-4a/b now adds explicit private JSON/HTML package publication; see
 [PUBLICATION.md](PUBLICATION.md). Earlier no-publication statements describe
 the snapshot-only milestone and its evidence. P0-4c now adds interrupted-publication reconciliation and known-staging cleanup;
-see [PUBLICATION_RECOVERY.md](PUBLICATION_RECOVERY.md). Published-artifact deletion
-and external-reader leases remain deferred.
+see [PUBLICATION_RECOVERY.md](PUBLICATION_RECOVERY.md). Explicit published-artifact retirement and full-history handoff are now
+documented in [RETENTION.md](RETENTION.md); external-reader leases remain deferred.

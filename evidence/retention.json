@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "mvp_qualified": false,
+  "cases": [
+    {
+      "name": "retirement_unlink_crash_keeps_credit_then_recovers",
+      "reserved_bytes_while_incomplete": 820,
+      "remaining_files_at_kill": 2,
+      "passed": true
+    },
+    {
+      "name": "unknown_published_data_preserved",
+      "files_preserved": 4,
+      "passed": true
+    },
+    {
+      "name": "seal_commit_crash_archive_recovery_without_reopening",
+      "passed": true
+    },
+    {
+      "name": "full_history_seal_archive_new_store_and_stale_rejection",
+      "history_used": 32,
+      "new_store_initial_remaining": 32,
+      "old_database_unchanged": true,
+      "passed": true
+    }
+  ],
+  "environment": {
+    "system": "Linux",
+    "release": "6.8.0-117-generic",
+    "python": "3.12.3",
+    "utc": "2026-10-29T07:06:57.071429+00:00"
+  },
+  "limits": [
+    "Synthetic source seeded through product API; actual formal daemon and subprocess CLI",
+    "Crash cases use test-only pauses after production unlink/seal commit followed by actual SIGKILL",
+    "Process restarts only; no VM reboot, power loss or physical media failure",
+    "Archive is an in-place sealed private store plus integrity receipt, not an independent backup or tamper-proof storage",
+    "No automatic rollover, unseal, external-reader lease or automated retention; copy artifacts before explicit retirement",
+    "Interrupted partial archive receipts/new-store initialization fail closed; no automated repair promised"
+  ],
+  "tests": 97,
+  "source": {
+    "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pathquill/archive.py": "9025e6fa828785ba469d58c0ad4280f4057079b8e62497a56d9ce962c684b9b2",
+    "pathquill/cli.py": "bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed",
+    "pathquill/core.py": "adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40",
+    "pathquill/daemon.py": "81dc0a7f846cb599f593d10e181a267ba0d6a41fbab201604948a83ce1a56180",
+    "pathquill/exports.py": "43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c",
+    "pathquill/managed.py": "b4de5f29a9128e3c24e09f98717fe83e72151db14567eb85d196025c8474fafa",
+    "pathquill/netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
+    "pathquill/probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
+    "pathquill/publication.py": "de176443ec633f71cfd2bb5f630d5d845237892408737338a94fc76e3a1c9a0b",
+    "pathquill/recorder.py": "92e73b60d01b2beccbf1a20d8c72507fd2eb46c2373c9a3971c0ef0075f02050",
+    "pathquill/redaction.py": "7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c",
+    "pathquill/state.py": "166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
+    "tests/test_daemon.py": "78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513",
+    "tests/test_exports.py": "46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650",
+    "tests/test_managed.py": "5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26",
+    "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
+    "tests/test_publication.py": "38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a",
+    "tests/test_publication_recovery.py": "70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f",
+    "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
+    "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
+    "tests/test_retirement.py": "b9a525da42853da984a8ef65452fd342d75fd259ae42a376527f2d8a1df753b9",
+    "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
+    "tests/test_supervision.py": "7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39",
+    "tools/retention.py": "6609c325ec420a88c6b22b8e5af13d1e69dd5af9e8a361f2d43bf3ec5b529c10",
+    "tools/recovery_daemon.py": "1ea371d56e56d2e132c0fabfdd7b2348b49960dad8b4fa1bb2ca664df4fdf522",
+    "tools/supervision.py": "e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1",
+    "pyproject.toml": "a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123"
+  },
+  "orchestrator_cleanup": true
+}

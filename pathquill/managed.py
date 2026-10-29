@@ -72,6 +72,7 @@ class ManagedRecorder(Recorder):
     def epoch_check(self,epoch):
         if epoch!=self.epoch:raise Refused('stale_epoch')
         if self.degraded:raise Refused('storage_degraded')
+        if self.sealed:raise Refused('store_sealed')
     def hold(self,key,epoch):
         self.epoch_check(epoch)
         def write():

@@ -32,8 +32,8 @@ export-cancel refuses with already_published and does not erase files or the
 snapshot. Cancellation of an interrupted publication first reconciles its files: a valid
 final refuses as already_published; known unpublished work enters durable
 CLEANUP_PENDING with outcome CANCELLED. Unknown layouts remain BLOCKED. Retry
-never restarts interrupted/cleaned publication under the old request ID. No published-artifact deletion API exists
-in this slice. A cancel queued during synchronous publication can run only after
+never restarts interrupted/cleaned publication under the old request ID. Explicit published-artifact retirement is now available under the
+[retention contract](RETENTION.md); cancellation does not substitute for it. A cancel queued during synchronous publication can run only after
 that operation; there is no interruptible I/O or bounded cancellation latency.
 The deadline is checked before work and immediately before rename; blocking
 I/O/commit can cross it. This is not a hard delivery-time bound.
@@ -60,7 +60,7 @@ A crash or error after rename can leave a complete visible package without a
 successful reply. Unknown or mismatched completion is BLOCKED, not silently retried or called
 success. Restart and explicit reconciliation can adopt a verified complete final
 or authorize cleanup of known staging. Cleanup is bounded and restartable;
-published-artifact deletion remains deferred. Keep the private store inaccessible to other users. Malicious same-UID
+explicit published-artifact retirement is documented in RETENTION.md. Keep the private store inaccessible to other users. Malicious same-UID
 modification and an administrator replacing files concurrently are outside this
 trust boundary; this is not an untrusted shared output directory.
 

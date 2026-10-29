@@ -3,7 +3,9 @@
 The actual daemon now reconciles all retained publication records at startup
 (maximum 32 request-history records), before serving clients. The same logic is
 available through an epoch-bound publication-reconcile operation. This extends
-P0-4a/b; it does not introduce automatic re-publication or published-file deletion.
+P0-4a/b without automatic re-publication. The subsequent
+[retention slice](RETENTION.md) adds explicit published-file retirement using the
+same persistent cleanup engine.
 
 ## Decision matrix
 
@@ -87,8 +89,8 @@ python3 -m pathquill.cli --root /absolute/private/store --op export-cancel --req
 After diagnosing and repairing a storage/permission problem, reconciliation may
 resume known cleanup. It never authorizes arbitrary deletion of mismatching data.
 BLOCKED needs operator investigation; no force-delete or automatic repair of
-unknown ownership is provided. Published artifacts and external reader leases
-remain outside this slice.
+unknown ownership is provided. Explicit published-artifact retirement is now described in RETENTION.md;
+external reader leases remain outside scope.
 
 ## Reproduction and evidence
 

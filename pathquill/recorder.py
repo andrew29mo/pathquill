@@ -15,6 +15,7 @@ class Recorder(Store):
         if 't' not in [row[1] for row in self.db.execute('PRAGMA table_info(capture)')]:self.db.execute('ALTER TABLE capture ADD COLUMN t REAL');self.db.commit()
         self.watermark=0
     def mutation(self,fn):
+        if self.sealed:raise Refused('store_sealed')
         if self.degraded:raise Refused('storage_degraded')
         try:
             with self.db:return fn()

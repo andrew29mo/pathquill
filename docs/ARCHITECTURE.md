@@ -1,4 +1,8 @@
-> Historical exploration status; current service behavior and remaining gates are in [MILESTONE1.md](MILESTONE1.md).
+Current contracts: EXPORT_SNAPSHOT.md, PUBLICATION.md, PUBLICATION_RECOVERY.md
+and RETENTION.md. Sections below record chronological stages; early limitations
+are superseded only by the explicitly documented later stage.
+
+> Historical exploration status; the original service milestone is in [MILESTONE1.md](MILESTONE1.md). Current contracts are listed above.
 
 # Exploration decisions and MVP gate
 
@@ -146,3 +150,14 @@ reservation remains until parent fsync and transactional CLEANED/snapshot releas
 Unknown layouts remain BLOCKED. A durable delivered marker prevents missing
 published artifacts from later being mistaken for abandoned unpublished work.
 See PUBLICATION_RECOVERY.md for current contracts and scoped process-crash VM evidence.
+
+## Explicit retirement and full-history handoff
+
+Published packages can enter a durable RETIRE_PENDING inventory, then use the
+same bounded cleanup engine. No quota is released before deletion, parent sync
+and the final SQLite transaction. Request history remains bounded at 32; it is
+never rolled over automatically. A stable store identity and irreversible SEALED
+lifecycle support offline in-place archive receipts and explicit distinct-path
+new-store creation. The sealed source is preserved, not copied/truncated. Old
+epochs and supplied old identities cannot authorize new-store work. See RETENTION.md
+for operator responsibilities, reader limits and current VM evidence.

@@ -38,12 +38,18 @@ class Store:
         os.chmod(self.root/'writer.lock',0o600)
         self.db=sqlite3.connect(self.root/'state.db',timeout=.1)
         os.chmod(self.root/'state.db',0o600)
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='meta'").fetchone() and self.db.execute("SELECT value FROM meta WHERE key='lifecycle'").fetchone()==('SEALED',):
+            self.db.close();fcntl.flock(self.lock,fcntl.LOCK_UN);self.lock.close();raise Refused('store_sealed')
         self.db.execute('PRAGMA journal_mode=DELETE');self.db.execute('PRAGMA synchronous=FULL')
         self.db.executescript('CREATE TABLE IF NOT EXISTS incidents(id TEXT PRIMARY KEY, first REAL,end REAL,state TEXT,coverage TEXT,reason TEXT,recovered INTEGER,body TEXT); CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT);')
+        self.sealed=False
         self.epoch=str(uuid.uuid4());self.slots=slots;self.limit=byte_limit;self.degraded=False
         with self.db:
             self.db.execute("UPDATE incidents SET state='SEALED',coverage='PARTIAL',reason='restart' WHERE state='CAPTURING'")
             self.db.execute("INSERT OR REPLACE INTO meta VALUES('epoch',?)",(self.epoch,))
+            self.db.execute("INSERT OR IGNORE INTO meta VALUES('store_id',?)",(str(uuid.uuid4()),))
+            self.db.execute("INSERT OR IGNORE INTO meta VALUES('lifecycle','OPEN')")
+        self.store_id=self.db.execute("SELECT value FROM meta WHERE key='store_id'").fetchone()[0]
     def close(self):self.db.close();fcntl.flock(self.lock,fcntl.LOCK_UN);self.lock.close()
     def trigger(self,now,payload):
         if self.degraded:raise Refused('storage_degraded')

@@ -86,9 +86,15 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                         request=json.loads(data)
                         if not isinstance(request,dict):raise ValueError('request_type')
                         export_result=None
+                        if request.get('store') is not None and request['store']!=r.store_id:raise Refused('store_mismatch')
+                        if request.get('op') in ('publication-retire','store-seal') and request.get('store')!=r.store_id:raise Refused('store_mismatch')
                         if request.get('op')=='export':export_result=r.request_export(request.get('request'),request.get('id'),request.get('seconds',30),request.get('epoch'))
                         elif request.get('op')=='export-publish':export_result=r.publish_export(request.get('request'),request.get('epoch'))
                         elif request.get('op')=='publication-reconcile':export_result=r.reconcile_request(request.get('request'),request.get('epoch'))
+                        elif request.get('op')=='publication-retire':export_result=r.retire_publication(request.get('request'),request.get('package'),request.get('epoch'))
+                        elif request.get('op')=='store-seal':
+                            if pending:raise Refused('probes_pending')
+                            export_result=r.seal_store(request.get('epoch'),before_commit=lambda:path.unlink());running=False
                         elif request.get('op')=='publication-status':export_result=r.publication_status(request.get('request'))
                         elif request.get('op')=='export-status':export_result=r.export_status(request.get('request'))
                         elif request.get('op')=='export-cancel':export_result=r.cancel_export(request.get('request'),request.get('epoch'))
@@ -102,12 +108,13 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                         if request.get('op')=='export-read':reply=dict(ok=True,export=export_result)
                         else:
                             incidents=[dict(id=x[0],state=x[1],coverage=x[2],recovered=bool(x[3])) for x in r.db.execute('SELECT id,state,coverage,recovered FROM incidents')]
-                            reply=dict(ok=True,export=export_result,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
+                            reply=dict(ok=True,store_id=r.store_id,lifecycle='SEALED' if r.sealed else 'OPEN',export=export_result,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
                         conn.sendall(json.dumps(reply).encode())
                     except Refused as error:
                         try:conn.sendall(json.dumps(dict(ok=False,error=str(error))).encode())
                         except OSError:pass
                     except (OSError,ValueError):pass
+            if r.sealed:break
             now=boottime()
             if r.degraded and state.status!='STORAGE_ERROR':
                 state.invalidate('storage_error');state.status='STORAGE_ERROR';health.clear();checked.clear()

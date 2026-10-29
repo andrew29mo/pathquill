@@ -41,7 +41,7 @@ class PublicationRecorder(ExportRecorder):
         super().__init__(*args,**kwargs)
         self.db.execute('CREATE TABLE IF NOT EXISTS publications(request TEXT PRIMARY KEY,package TEXT UNIQUE,state TEXT,bytes INTEGER,digest TEXT)')
         columns={row[1] for row in self.db.execute('PRAGMA table_info(publications)')}
-        for name,kind in [('stage_dev','INTEGER'),('stage_ino','INTEGER'),('cleanup','TEXT'),('outcome','TEXT'),('delivered','INTEGER DEFAULT 0')]:
+        for name,kind in [('stage_dev','INTEGER'),('stage_ino','INTEGER'),('cleanup','TEXT'),('outcome','TEXT'),('delivered','INTEGER DEFAULT 0'),('retiring','INTEGER DEFAULT 0')]:
             if name not in columns:self.db.execute('ALTER TABLE publications ADD COLUMN '+name+' '+kind)
         with self.db:self.db.execute("UPDATE publications SET delivered=1 WHERE state='PUBLISHED'")
         for request, in self.db.execute('SELECT request FROM publications').fetchall():self.reconcile_publication(request)
@@ -54,6 +54,7 @@ class PublicationRecorder(ExportRecorder):
         self.epoch_check(epoch);self.validate_request(request)
         row=self.db.execute('SELECT state FROM publications WHERE request=?',(request,)).fetchone()
         if row is not None:
+            if self.db.execute('SELECT retiring FROM publications WHERE request=?',(request,)).fetchone()[0]:raise Refused('retirement_in_progress')
             self.reconcile_publication(request,cancel=True)
             state=self.publication_status(request)['state']
             if state=='PUBLISHED':raise Refused('already_published')
@@ -155,9 +156,9 @@ class PublicationRecorder(ExportRecorder):
         return inventory
     def reconcile_publication(self,request,cancel=False):
         self.validate_request(request)
-        row=self.db.execute('SELECT package,state,bytes,digest,stage_dev,stage_ino,cleanup,outcome,delivered FROM publications WHERE request=?',(request,)).fetchone()
+        row=self.db.execute('SELECT package,state,bytes,digest,stage_dev,stage_ino,cleanup,outcome,delivered,retiring FROM publications WHERE request=?',(request,)).fetchone()
         if row is None:raise Refused('publication_not_found')
-        package,state,size,digest,dev,ino,cleanup,outcome,delivered=row
+        package,state,size,digest,dev,ino,cleanup,outcome,delivered,retiring=row
         if state=='CLEANED':return
         try:
             if not re.fullmatch('[0-9a-f]{32}',package):raise Refused('unknown_package')
@@ -166,6 +167,16 @@ class PublicationRecorder(ExportRecorder):
             if snapshot is None or snapshot[0] is None or snapshot[1]!=digest or hashlib.sha256(snapshot[0].encode()).hexdigest()!=digest:raise Refused('snapshot_mismatch')
             bodies=package_bodies(snapshot[0])
             if sum(map(len,bodies.values()))!=size:raise Refused('reservation_mismatch')
+            if retiring:
+                if os.path.lexists(temporary) or cleanup is None or outcome!='RETIRED':raise Refused('retirement_mismatch')
+                inventory=json.loads(cleanup)
+                if not isinstance(inventory,dict) or set(inventory)!=set(bodies):raise Refused('retirement_mismatch')
+                if os.path.lexists(final):
+                    info=self._directory_info(final)
+                    if ino is None or (info.st_dev,info.st_ino)!=(dev,ino):raise Refused('directory_replaced')
+                    actual=self._contents(final,bodies,partial=True)
+                    if any(actual[name]!=inventory[name] for name in actual):raise Refused('cleanup_mismatch')
+                self._set_publication(request,'RETIRE_PENDING');return
             # lexists detects dangling symlinks too; no unknown object is removed.
             final_exists=os.path.lexists(final);stage_exists=os.path.lexists(temporary)
             if final_exists:
@@ -197,13 +208,13 @@ class PublicationRecorder(ExportRecorder):
         except (OSError,Refused,ValueError,TypeError):self._set_publication(request,'BLOCKED')
     def advance_publications(self):
         if self.degraded:return
-        row=self.db.execute("SELECT request FROM publications WHERE state='CLEANUP_PENDING' LIMIT 1").fetchone()
+        row=self.db.execute("SELECT request FROM publications WHERE state IN ('CLEANUP_PENDING','RETIRE_PENDING') LIMIT 1").fetchone()
         if row is None:return
         request=row[0];self.reconcile_publication(request)
-        row=self.db.execute('SELECT package,state,cleanup,outcome FROM publications WHERE request=?',(request,)).fetchone()
-        if row[1]!='CLEANUP_PENDING':return
+        row=self.db.execute('SELECT package,state,cleanup,outcome,retiring FROM publications WHERE request=?',(request,)).fetchone()
+        if row[1] not in ('CLEANUP_PENDING','RETIRE_PENDING'):return
         try:
-            directory=self.package_directory();temporary=directory/('.stage-'+row[0])
+            directory=self.package_directory();temporary=directory/(row[0] if row[4] else '.stage-'+row[0])
             # Reconciliation just checked every remaining inode/content. One file
             # per turn bounds cleanup work; missing files are allowed only after
             # the durable cleanup inventory was committed.
@@ -214,9 +225,46 @@ class PublicationRecorder(ExportRecorder):
                 temporary.rmdir()
             sync_dir(directory)
             def finish():
-                self.db.execute("UPDATE publications SET state='CLEANED',bytes=0 WHERE request=? AND state='CLEANUP_PENDING'",(request,))
+                self.db.execute("UPDATE publications SET state='CLEANED',bytes=0 WHERE request=? AND state IN ('CLEANUP_PENDING','RETIRE_PENDING')",(request,))
                 self.db.execute('UPDATE exports SET state=?,snapshot=NULL,digest=NULL WHERE request=?',(row[3],request))
             self.mutation(finish)
         except (OSError,Refused):self._set_publication(request,'BLOCKED')
     def reconcile_request(self,request,epoch):
         self.epoch_check(epoch);self.reconcile_publication(request);return self.publication_status(request)
+
+    def retire_publication(self,request,package,epoch):
+        self.epoch_check(epoch);self.validate_request(request)
+        row=self.db.execute('SELECT package,state,retiring FROM publications WHERE request=?',(request,)).fetchone()
+        if row is None:raise Refused('publication_not_found')
+        if package!=row[0]:raise Refused('package_mismatch')
+        if row[2]:
+            self.reconcile_publication(request);return self.publication_status(request)
+        self.reconcile_publication(request)
+        if self.publication_status(request)['state']!='PUBLISHED':raise Refused('publication_not_published')
+        directory=self.package_directory();final=directory/package
+        snapshot=self.db.execute('SELECT snapshot FROM exports WHERE request=?',(request,)).fetchone()[0]
+        try:
+            info=self._directory_info(final);inventory=self._contents(final,package_bodies(snapshot))
+            self._set_publication(request,'RETIRE_PENDING',retiring=1,cleanup=json.dumps(inventory,sort_keys=True),outcome='RETIRED',stage_dev=info.st_dev,stage_ino=info.st_ino)
+        except (OSError,Refused):raise Refused('retirement_unavailable') from None
+        return self.publication_status(request)
+    def seal_store(self,epoch,before_commit=None):
+        self.epoch_check(epoch)
+        if self.db.execute("SELECT 1 FROM incidents WHERE state='CAPTURING'").fetchone():raise Refused('capture_busy')
+        if self.db.execute('SELECT 1 FROM holds').fetchone():raise Refused('references_busy')
+        if self.db.execute("SELECT 1 FROM exports WHERE state IN ('QUEUED','SNAPSHOTTING','BLOCKED')").fetchone():raise Refused('export_busy')
+        if self.db.execute("SELECT 1 FROM publications WHERE state NOT IN ('PUBLISHED','CLEANED')").fetchone():raise Refused('publication_requires_reconciliation')
+        # Verify published artifacts before freezing the ledger.
+        for request, in self.db.execute("SELECT request FROM publications WHERE state='PUBLISHED'").fetchall():
+            self.reconcile_publication(request)
+            if self.publication_status(request)['state']!='PUBLISHED':raise Refused('publication_requires_reconciliation')
+        if before_commit is not None:before_commit()
+        self.mutation(lambda:self.db.execute("UPDATE meta SET value='SEALED' WHERE key='lifecycle'"));self.sealed=True
+        return dict(store_id=self.store_id,lifecycle='SEALED')
+    def usage(self):
+        result=super().usage()
+        count,used=self.db.execute('SELECT count(*),coalesce(sum(length(CAST(snapshot AS BLOB))),0) FROM exports').fetchone()
+        result['export_history']=dict(used=count,limit=32,remaining=32-count)
+        result['snapshots']=dict(bytes=used,limit=1048576)
+        result['publications']=dict(reserved_bytes=self.db.execute('SELECT coalesce(sum(bytes),0) FROM publications').fetchone()[0],limit=FILE_BUDGET)
+        return result
