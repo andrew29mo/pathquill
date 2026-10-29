@@ -9,6 +9,7 @@ from pathlib import Path
 import select
 import signal
 import socket
+import sys
 import time
 import threading
 from .core import Refused,boottime
@@ -157,5 +158,8 @@ def main():
         address=ipaddress.ip_address(target['host'])
         if target.get('kind','tcp') not in ('tcp','dns') or (target.get('kind')=='dns' and address.version!=4):raise ValueError('probe_kind_or_family')
         if not 1<=target['port']<=65535 or not .05<=target['timeout']<=2 or not .1<=target['interval']<=60:raise ValueError('target_limits')
-    serve(a.root,targets,a.data_bytes,a.slots,a.retention_seconds)
+    try:serve(a.root,targets,a.data_bytes,a.slots,a.retention_seconds)
+    except Refused as error:
+        if str(error)!='store_sealed':raise
+        print('store_sealed',file=sys.stderr);raise SystemExit(78) from None
 if __name__=='__main__':main()

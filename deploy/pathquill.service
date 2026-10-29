@@ -1,0 +1,41 @@
+[Unit]
+Description=Pathquill private network incident recorder
+After=network.target
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=pathquill
+Group=pathquill
+WorkingDirectory=/
+ExecStart=/opt/pathquill/venv/bin/python -I -m pathquill.daemon --root /var/lib/pathquill/store --config /etc/pathquill/config.json
+ExecStopPost=/opt/pathquill/venv/bin/python -I -m pathquill.service_exit
+UnsetEnvironment=PYTHONPATH PYTHONHOME
+UMask=0077
+StateDirectory=pathquill
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/pathquill
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+KillMode=control-group
+TimeoutStopSec=8
+Restart=on-failure
+RestartSec=1
+SuccessExitStatus=78
+RestartPreventExitStatus=78
+MemoryAccounting=true
+
+[Install]
+WantedBy=multi-user.target

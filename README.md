@@ -8,7 +8,9 @@ capacity and retention are implemented; durable deidentified snapshots and
 JSON/HTML package publication, interrupted-publication reconciliation and
 conservative cleanup, explicit retirement and full-history archive/new-store
 workflow are available. See [retention contract and evidence](docs/RETENTION.md).
-Deployment qualification remains incomplete. See [recovery contract and evidence](docs/PUBLICATION_RECOVERY.md).
+Installed-package/systemd lifecycle validation is available in
+[deployment contract and evidence](docs/DEPLOYMENT.md). Clean-VM end-to-end and
+bounded sustained-operation acceptance remain incomplete. See [recovery contract and evidence](docs/PUBLICATION_RECOVERY.md).
 See [publication contract and evidence](docs/PUBLICATION.md),
 [snapshot contract and evidence](docs/EXPORT_SNAPSHOT.md), and
 [capacity contract and evidence](docs/CAPACITY.md).

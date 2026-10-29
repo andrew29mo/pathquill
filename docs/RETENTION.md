@@ -165,7 +165,8 @@ other runners are refreshed for the same final runtime with their own scopes.
 No VM reboot, sudden power loss, zero-gap boot, kernel short-write, long-term
 rollover, independent backup restore, reader-lease safety or formal systemd
 installation qualification is claimed. GitHub stays Private, with no license
-selected. mvp_qualified remains false until the separate deployment acceptance.
+selected. Installed service lifecycle evidence is now in DEPLOYMENT.md;
+mvp_qualified remains false until clean-VM end-to-end/sustained acceptance.
 
 ## Retirement-stage review corrections
 

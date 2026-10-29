@@ -1,0 +1,106 @@
+{
+  "passed": false,
+  "mvp_qualified": false,
+  "cases": [
+    {
+      "name": "default_network_and_unprivileged_service",
+      "uid": 996,
+      "cap_eff_zero": true,
+      "no_new_privs": true,
+      "vm_network_namespace_match": true,
+      "independent_link_count": 3,
+      "config_write_denied": true,
+      "passed": true
+    },
+    {
+      "name": "normal_stop_cleans_processes_and_socket",
+      "observation_seconds": 2.2,
+      "passed": true
+    },
+    {
+      "name": "explicit_namespace_probe_and_sigkill_takeover",
+      "namespace_matches_target": true,
+      "probe_success": true,
+      "observed_restart_cli_seconds": 1.094473929999367,
+      "main_rss_kib": 19968,
+      "cgroup_memory_current_bytes": 9682944,
+      "old_export_interrupted": true,
+      "old_operation_rejected": true,
+      "passed": true
+    }
+  ],
+  "environment": {
+    "system": "Linux",
+    "release": "6.8.0-117-generic",
+    "python": "3.12.3",
+    "systemd": "systemd 255 (255.4-1ubuntu8.15)",
+    "utc": "2026-10-29T07:57:50.568106+00:00"
+  },
+  "limits": [
+    "Existing Colima Linux VM with fresh Pathquill paths, not a clean OS/VM or boot test",
+    "Normal unit inherits VM network; namespace drop-in is explicit test topology, not PrivateNetwork",
+    "Installed wheel used by actual systemd and CLI; source unit tests are separately executed and fingerprint-bound to wheel",
+    "Finite restart/stop observations, no hard latency or resource-leak guarantee",
+    "No VM reboot, power loss, systemd boot enablement, independent backup restore or production qualification"
+  ],
+  "tests": 102,
+  "error": "CalledProcessError: Command '['systemctl', 'reset-failed', 'pathquill.service']' returned non-zero exit status 1.",
+  "installation": {
+    "wheel_sha256": "a86adfb0e95f6d0ca144d9406b6abb82db4945e858c48e6170cb395c7a1106c6",
+    "wheel_generator": "Generator: setuptools (84.2.1)",
+    "build_isolation": true,
+    "service_uid": 996,
+    "installed_module_hashes": {
+      "managed.py": "b4de5f29a9128e3c24e09f98717fe83e72151db14567eb85d196025c8474fafa",
+      "state.py": "166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7",
+      "recorder.py": "92e73b60d01b2beccbf1a20d8c72507fd2eb46c2373c9a3971c0ef0075f02050",
+      "netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
+      "core.py": "adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40",
+      "exports.py": "43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c",
+      "cli.py": "bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed",
+      "redaction.py": "7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c",
+      "archive.py": "3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e",
+      "daemon.py": "461c5fb9f842288720f26342b12d6de6a284224b4f0c7392a841026967ada257",
+      "publication.py": "de176443ec633f71cfd2bb5f630d5d845237892408737338a94fc76e3a1c9a0b",
+      "probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
+      "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "isolated_site_packages_import": true
+  },
+  "source": {
+    "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pathquill/archive.py": "3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e",
+    "pathquill/cli.py": "bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed",
+    "pathquill/core.py": "adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40",
+    "pathquill/daemon.py": "461c5fb9f842288720f26342b12d6de6a284224b4f0c7392a841026967ada257",
+    "pathquill/exports.py": "43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c",
+    "pathquill/managed.py": "b4de5f29a9128e3c24e09f98717fe83e72151db14567eb85d196025c8474fafa",
+    "pathquill/netlink.py": "24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c",
+    "pathquill/probes.py": "042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169",
+    "pathquill/publication.py": "de176443ec633f71cfd2bb5f630d5d845237892408737338a94fc76e3a1c9a0b",
+    "pathquill/recorder.py": "92e73b60d01b2beccbf1a20d8c72507fd2eb46c2373c9a3971c0ef0075f02050",
+    "pathquill/redaction.py": "7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c",
+    "pathquill/state.py": "166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
+    "tests/test_daemon.py": "78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513",
+    "tests/test_daemon_exit.py": "9047671e57c4f36c63926440758fd246c45aab3dccad7fed6dc1cae70b10ea5b",
+    "tests/test_exports.py": "46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650",
+    "tests/test_managed.py": "5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26",
+    "tests/test_netlink.py": "ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20",
+    "tests/test_publication.py": "38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a",
+    "tests/test_publication_recovery.py": "70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f",
+    "tests/test_recorder.py": "7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef",
+    "tests/test_reporting.py": "af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c",
+    "tests/test_retirement.py": "938784ea1b4c69d6a11788f26bdc3c2bae0d5b4bde01da7ab347caeba05da31f",
+    "tests/test_state.py": "f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89",
+    "tests/test_supervision.py": "7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39",
+    "deploy/config.example.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "deploy/install.sh": "55844fe8a246cfd119e6a036dd197a74e04067f0fe6659ed4c5b623dc77d5936",
+    "deploy/pathquill.service": "6362c455aca908e3ecfee4a43b104c248399d276d065057c893c90f8dc9f06cc",
+    "tools/deployment.py": "86258030fcbc0a90295c25c762a6fb6cc33d4de82a2d8fa91d0de834b80b84d0",
+    "tools/supervision.py": "e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1",
+    "pyproject.toml": "a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123"
+  },
+  "orchestrator_cleanup": true
+}

@@ -161,3 +161,14 @@ lifecycle support offline in-place archive receipts and explicit distinct-path
 new-store creation. The sealed source is preserved, not copied/truncated. Old
 epochs and supplied old identities cannot authorize new-store work. See RETENTION.md
 for operator responsibilities, reader limits and current VM evidence.
+
+## Installed Linux service lifecycle
+
+The formal wheel and exact systemd unit now run as a dedicated non-root account,
+without capabilities or source-path imports. Default deployment inherits the
+observed host network; a validation-only namespace drop-in is explicit. Exit 78
+marks a SEALED store as permanent/non-restarting. A private allowlisted stop
+receipt preserves actual systemd exit evidence after inactive-unit collection.
+Real PID 1 restart-limit events and current invocation/boot evidence are required.
+See DEPLOYMENT.md for installer boundaries, packaged-service validation and the
+remaining clean-VM/sustained-operation acceptance. No boot/reboot claim is added.

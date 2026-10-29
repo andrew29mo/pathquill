@@ -12,8 +12,8 @@
       &quot;snapshot_digest&quot;: &quot;4c55029e9761b07400c7b795c4b4afcc014f3aa56635a98829503b8ae3d601af&quot;,
       &quot;raw_values_absent&quot;: true,
       &quot;state_alias_relationships_preserved&quot;: true,
-      &quot;concurrent_reads&quot;: 533,
-      &quot;progress_during_reads&quot;: 1.6240041230012139,
+      &quot;concurrent_reads&quot;: 1295,
+      &quot;progress_during_reads&quot;: 3.840026392001164,
       &quot;passed&quot;: true
     },
     {
@@ -23,7 +23,7 @@
   ],
   &quot;environment&quot;: {
     &quot;system&quot;: &quot;Linux VM&quot;,
-    &quot;utc&quot;: &quot;2026-10-29T07:36:26.995584+00:00&quot;
+    &quot;utc&quot;: &quot;2026-10-29T08:14:46.553273+00:00&quot;
   },
   &quot;limits&quot;: [
     &quot;Sources are synthetic privacy fixtures seeded through product API, not real network incidents&quot;,
@@ -31,13 +31,13 @@
     &quot;This runner exercises SQLite snapshots only; package publication is verified separately&quot;,
     &quot;Unknown ownership is fail-closed BLOCKED; operator repair interface remains deferred&quot;
   ],
-  &quot;tests&quot;: 100,
+  &quot;tests&quot;: 108,
   &quot;source&quot;: {
     &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
     &quot;pathquill/archive.py&quot;: &quot;3f313c591c1795163ddb779ce6039f6be686e12a596bf7d713a2188ae529947e&quot;,
     &quot;pathquill/cli.py&quot;: &quot;bdc15fce29bd02dfee97e98270566ce5570f6bde5be8b65bea6a22f9de4298ed&quot;,
     &quot;pathquill/core.py&quot;: &quot;adc64bd9dec7ce4c978f843ebdedd98dee3eb560c5a2b924c1c0a0ca1cb26d40&quot;,
-    &quot;pathquill/daemon.py&quot;: &quot;81dc0a7f846cb599f593d10e181a267ba0d6a41fbab201604948a83ce1a56180&quot;,
+    &quot;pathquill/daemon.py&quot;: &quot;461c5fb9f842288720f26342b12d6de6a284224b4f0c7392a841026967ada257&quot;,
     &quot;pathquill/exports.py&quot;: &quot;43fd4ae48bf2e921d6ba39c85cf47c02d959bd51d64d12b829a2316a4976a98c&quot;,
     &quot;pathquill/managed.py&quot;: &quot;b4de5f29a9128e3c24e09f98717fe83e72151db14567eb85d196025c8474fafa&quot;,
     &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
@@ -45,18 +45,22 @@
     &quot;pathquill/publication.py&quot;: &quot;de176443ec633f71cfd2bb5f630d5d845237892408737338a94fc76e3a1c9a0b&quot;,
     &quot;pathquill/recorder.py&quot;: &quot;92e73b60d01b2beccbf1a20d8c72507fd2eb46c2373c9a3971c0ef0075f02050&quot;,
     &quot;pathquill/redaction.py&quot;: &quot;7f7e532f8b836298ee9a5bcb1bcf8f1675682fc250ce8ff4c6a235e99538109c&quot;,
+    &quot;pathquill/service_exit.py&quot;: &quot;ff62c3bc9480a4f7cc0ca17f1072a9bb9d13bdbeb2946caf1e2f501b8afb0183&quot;,
     &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
     &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
     &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
     &quot;tests/test_daemon.py&quot;: &quot;78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513&quot;,
+    &quot;tests/test_daemon_exit.py&quot;: &quot;9047671e57c4f36c63926440758fd246c45aab3dccad7fed6dc1cae70b10ea5b&quot;,
     &quot;tests/test_exports.py&quot;: &quot;46ecbb4eb2c6f752a8d16e81473a89058706de8043c6a77132cdde83f6232650&quot;,
     &quot;tests/test_managed.py&quot;: &quot;5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26&quot;,
     &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
     &quot;tests/test_publication.py&quot;: &quot;38b263f8f37b9118c0777fa7fb9db26d15f5c4f58a7db9c0104b09bc747d242a&quot;,
     &quot;tests/test_publication_recovery.py&quot;: &quot;70ae9919a1439925fd5c4ef5ec964e4e8d75845bdb56eab89efd40e1276c409f&quot;,
     &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
-    &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
+    &quot;tests/test_reporting.py&quot;: &quot;da92cc048625111ada26a7183388df923350c609d385839354647cdc4cd0d839&quot;,
     &quot;tests/test_retirement.py&quot;: &quot;938784ea1b4c69d6a11788f26bdc3c2bae0d5b4bde01da7ab347caeba05da31f&quot;,
+    &quot;tests/test_service_evidence.py&quot;: &quot;9a30a4fe8893ee7a16e14a6a64023c736def6581d640c9ba9f7a96ea0a62c25c&quot;,
+    &quot;tests/test_service_exit.py&quot;: &quot;a036881a042eb9781e07eef1517c6733172a3722e593c1481a18a5eb21918065&quot;,
     &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
     &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
     &quot;tools/export_snapshot.py&quot;: &quot;89a0ef4215b50402a8e8a1171a16bf5a6925166870ede577bb6ca78fd8339769&quot;,
