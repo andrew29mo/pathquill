@@ -1,3 +1,5 @@
+> Historical exploration status; current service behavior and remaining gates are in [MILESTONE1.md](MILESTONE1.md).
+
 # Continued technical explorations
 
 The current record is [continued.json](../evidence/continued.json), with the

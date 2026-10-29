@@ -8,3 +8,6 @@ requires-python = ">=3.12"
 dependencies = []
 [tool.setuptools.packages.find]
 include = ["pathquill*"]
+[project.scripts]
+pathquill = "pathquill.daemon:main"
+pathquill-status = "pathquill.cli:main"

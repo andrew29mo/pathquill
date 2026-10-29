@@ -1,3 +1,5 @@
+> Historical exploration status; current service behavior and remaining gates are in [MILESTONE1.md](MILESTONE1.md).
+
 # Exploration decisions and MVP gate
 
 ## Implemented minimum
@@ -86,3 +88,10 @@ Cross-boot data remains historical and is not reused as current prebuffer.
 Read-only dumps require unique request sequences and explicit loss rejection.
 Store directory ownership/private mode and numeric probe endpoints are enforced.
 These are exploration-core contracts, not whole-service qualification.
+
+## Milestone 1 supersedes the exploration-only service status
+
+See [MILESTONE1.md](MILESTONE1.md) for the formal daemon, quiet-round state
+reconstruction, generation-bound workers and writer-commit-driven sealing.
+Capacity/export/deployment gates remain open. Historical exploration source
+fingerprints are retained and must not be treated as qualification of new code.

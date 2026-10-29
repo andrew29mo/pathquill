@@ -21,7 +21,7 @@ class RouteSocket:
     def synchronize(self):
         import time
         # Subscribe before issuing any dump; unsolicited events remain evidence.
-        result=dict(valid=False,dumps=[],notifications=[])
+        result=dict(valid=False,dumps=[],notifications=[],records=[])
         try:
             for kind in (18,22,26):
                 self.sequence=getattr(self,'sequence',0)+1;seq=self.sequence
@@ -44,7 +44,9 @@ class RouteSocket:
                             payload=bytes.fromhex(m['payload'])
                             if len(payload)>=4 and struct.unpack_from('i',payload)[0]!=0:raise OSError('dump_done_error')
                             done=True
-                        else:count+=1
+                        else:
+                            count+=1;result['records'].append(m)
+                            if len(result['records'])>4096:raise BufferError('dump_record_budget')
                     if done:break
                 else:raise TimeoutError('dump_timeout')
                 result['dumps'].append(dict(kind=kind,count=count,start=start,end=time.monotonic()))
