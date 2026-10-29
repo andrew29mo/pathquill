@@ -1,6 +1,6 @@
 # Pathquill
 
-Private Linux network incident recorder with fixed snapshots, package publication,
+A bounded Linux network incident recorder with fixed snapshots, package publication,
 recovery after process crashes and explicit retirement.
 Licensed under the [MIT License](LICENSE). The formal daemon now collects and
 reconstructs state, schedules bounded probes and drives incident lifecycle;
@@ -81,7 +81,7 @@ seal/archive/new-store handoff is available, automatic rollover is not.
 ## Release status
 
 The final pre-publication review is recorded in
-[PREPUBLIC_REVIEW.md](docs/PREPUBLIC_REVIEW.md). The repository remains Private,
+[PREPUBLIC_REVIEW.md](docs/PREPUBLIC_REVIEW.md). The repository is Public,
 and is licensed under [MIT](LICENSE). The source/build/host dependency inventory
 is in [DEPENDENCIES.md](docs/DEPENDENCIES.md); upstream components retain their own terms.
 
@@ -89,3 +89,7 @@ The MIT addition changes packaging metadata and documentation only. Existing
 measurement reports retain their original pyproject fingerprints and pre-license
 status text; production runtime/test bytes are unchanged. See the licensing
 addendum in [DEPENDENCIES.md](docs/DEPENDENCIES.md).
+
+Public-repository protections and verification are recorded in
+[PUBLIC_RELEASE.md](docs/PUBLIC_RELEASE.md). Security reports can be submitted
+privately using the process in [SECURITY.md](SECURITY.md).

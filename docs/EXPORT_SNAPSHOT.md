@@ -114,7 +114,7 @@ they do not establish every export-specific I/O crash boundary.
 
 No VM reboot, sudden power loss, atomic export-file publication, file cleanup,
 external-reader lease, full Linux-attribute coverage or long-term qualification
-is added. P0-4 and formal deployment remain open. GitHub stays Private and the project now uses [MIT](../LICENSE).
+is added. P0-4 and formal deployment remain open. GitHub is now Public and the project now uses [MIT](../LICENSE).
 
 ## P0-3 review corrections
 

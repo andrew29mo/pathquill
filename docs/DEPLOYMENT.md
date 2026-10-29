@@ -172,4 +172,4 @@ reboot/stop the shared VM. Raw private VM network state/journal is not committed
 The separate clean-VM document-driven full workflow and bounded observation
 are described in [CLOSEOUT.md](CLOSEOUT.md). No VM reboot, power loss, zero-gap boot,
 automatic upgrade, native macOS daemon support or production guarantee is claimed.
-GitHub stays Private and the project now uses [MIT](../LICENSE).
+GitHub is now Public and the project now uses [MIT](../LICENSE).

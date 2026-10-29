@@ -129,7 +129,7 @@ for the final source version, but their scopes remain separate.
 
 No VM reboot, sudden power loss, zero-gap boot, external reader lease, automatic
 published-artifact retention, production deployment or long-term qualification is
-claimed. GitHub remains Private and the project now uses [MIT](../LICENSE).
+claimed. GitHub is now Public and the project now uses [MIT](../LICENSE).
 
 ## P0-4c review corrections
 

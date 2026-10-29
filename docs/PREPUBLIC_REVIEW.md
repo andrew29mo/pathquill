@@ -3,7 +3,8 @@
 Date: 2026-10-29. Reviewed code/test/evidence baseline: ed781910be7e7f6227450f19ab946c23ecb95805.
 Follow-up changes in this review clarify documentation only; production code,
 tests, deployment assets and qualification reports remain at that same content.
-GitHub remains Private. MIT was selected after this review; see the licensing
+GitHub was Private during this review. The subsequently authorized public
+release is recorded in [PUBLIC_RELEASE.md](PUBLIC_RELEASE.md). MIT was selected after this review; see the licensing
 addendum in [DEPENDENCIES.md](DEPENDENCIES.md).
 
 ## Code, tests and claims
@@ -71,14 +72,15 @@ not returned, so neither is claimed enabled. Once publication is explicitly
 authorized, recheck and apply the intended public-repository protections; these
 checks are not a substitute for that step.
 
-## Remaining decisions and tested boundaries
+## Decisions recorded at review time and tested boundaries
 
 - Decide whether to retain the historical local-machine commit identity or
   explicitly authorize the reviewed metadata-only rewrite.
 - License decision completed: [MIT](../LICENSE), with the inventory in
   [DEPENDENCIES.md](DEPENDENCIES.md).
-- Public visibility requires separate authorization. No public-release mutation
-  has been made in this review.
+- Public visibility was subsequently authorized and applied; see
+  [PUBLIC_RELEASE.md](PUBLIC_RELEASE.md). The API observations above describe the
+  earlier private-repository review, not current public security settings.
 
 The functional scope is frozen: Linux-only service; bounded storage/export
 budgets; 32 permanent request-history slots per store; explicit raw-data deletion,
