@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "mvp_qualified": false,
+  "platform": "Linux VM / isolated network namespace",
+  "cases": [
+    {
+      "name": "unprivileged_real_netlink",
+      "uid": 501,
+      "message_types": [
+        16
+      ],
+      "passed": true
+    },
+    {
+      "name": "boottime_elapsed",
+      "seconds": 0.0813113069999929,
+      "passed": true
+    },
+    {
+      "name": "SIGKILL_committed_capture",
+      "child_exit": -9,
+      "recovered": [
+        "SEALED",
+        "PARTIAL",
+        "restart"
+      ],
+      "redacted": true,
+      "passed": true
+    }
+  ],
+  "source": {
+    "pathquill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pathquill/core.py": "ee1ab9164a1bd2621628c44140796db7fda8f8e73e5d78e5f20cff82180a7c50",
+    "pathquill/netlink.py": "43b3de356b7e733860071850fb19835e23390e62ad9279a65a8bb960c9243032",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_core.py": "1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19",
+    "tools/explore.py": "716bba39451ae9c803f59f488cd93a5d24f8b2828bb4a14b53429d02697ffa9b"
+  },
+  "limits": [
+    "No VM reboot, power loss or suspend test",
+    "No actual kernel ENOBUFS generation; loss behavior is injected",
+    "No persistent prebuffer, full snapshot reconciliation, real DNS probes or automatic capture daemon yet",
+    "No physical disk-full or read-only filesystem test; SQLite FULL is real, query_only is connection-level fault injection"
+  ],
+  "tests": {
+    "count": 7,
+    "failures": 0,
+    "errors": 0
+  }
+}
