@@ -10,6 +10,7 @@ import select
 import signal
 import socket
 import time
+import threading
 from .core import Refused,boottime
 from .recorder import Recorder
 from .netlink import RouteSocket
@@ -26,17 +27,36 @@ def tcp(target):
     except OSError as e:outcome='refused' if e.errno==errno.ECONNREFUSED else 'network_error'
     return outcome
 
+def measured_probe(target,started):
+    start=boottime();started['at']=start;started['event'].set()
+    outcome=tcp(target)
+    return outcome,start,boottime()
+
+def accept_result(recorder,health,target,index,outcome,start,end,generation,current):
+    if generation!=current:return False
+    recorder.observe(dict(kind=target.get('kind','tcp'),target=index,outcome=outcome,generation=generation,start=start,end=end))
+    health[str(index)]=outcome
+    if outcome in ('refused','timeout','network_error','dns_error'):
+        # Re-read time after FULL commit, which may have crossed the deadline.
+        decision=boottime()
+        active=recorder.db.execute("SELECT end FROM incidents WHERE state='CAPTURING'").fetchone()
+        if active is None or decision<=active[0]:recorder.incident(dict(endpoints=[target['host']]),decision)
+    return True
+
+def recovery_ready(health,checked,count,status,first):
+    return status=='RECORDING' and count>0 and len(health)==count and all(health.get(str(i))=='success' and checked.get(str(i),-1)>=first for i in range(count))
+
 def serve(root,targets):
     r=Recorder(root);backend=RouteSocket();state=State();rpc=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);path=Path(root)/'control.sock'
     path.unlink(missing_ok=True);rpc.bind(str(path));os.chmod(path,0o600);rpc.listen(8);rpc.setblocking(False)
-    running=True;health={};pending={};next_run={i:0 for i in range(len(targets))};stale=0;committed=0;observed=0
+    running=True;health={};checked={};pending={};next_run={i:0 for i in range(len(targets))};stale=0;committed=0;observed=0;results=[]
     def stop(*_):
         nonlocal running
         running=False
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     pool=concurrent.futures.ThreadPoolExecutor(max_workers=max(1,len(targets)))
     def rebuild():
-        health.clear();ok=state.rebuild(backend)
+        health.clear();checked.clear();ok=state.rebuild(backend)
         if ok:
             for group,items in state.view.items():
                 for value in items.values():r.observe(dict(kind='state_object',group=group,generation=state.generation,value=value))
@@ -53,7 +73,7 @@ def serve(root,targets):
                     for message in messages:r.observe(dict(kind='notification',type=message['kind']))
                     rebuild()
                 except (OSError,ValueError,BufferError):
-                    state.invalidate('receive_error');health.clear()
+                    state.invalidate('receive_error');health.clear();checked.clear()
                     r.observe(dict(kind='gap',reason='receive_error'))
                     for key, in r.db.execute("SELECT id FROM incidents WHERE state='CAPTURING'").fetchall():r.gap(key,'receive_error')
             if rpc in reads:
@@ -63,36 +83,35 @@ def serve(root,targets):
                         data=conn.recv(4097)
                         if len(data)>4096:raise ValueError('request_size')
                         request=json.loads(data)
+                        if not isinstance(request,dict):raise ValueError('request_type')
                         if request.get('op')=='resync':rebuild()
                         elif request.get('op')!='status':raise ValueError('unknown_operation')
                         incidents=[dict(id=x[0],state=x[1],coverage=x[2],recovered=bool(x[3])) for x in r.db.execute('SELECT id,state,coverage,recovered FROM incidents')]
-                        reply=dict(ok=True,epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents)
+                        reply=dict(ok=True,epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
                         conn.sendall(json.dumps(reply).encode())
                     except (OSError,ValueError):pass
             now=boottime()
             if state.status!='RECORDING' and now-last_retry>=1:
                 rebuild();last_retry=boottime()
-            for i,(future,generation) in list(pending.items()):
+            for i,(future,generation,started) in list(pending.items()):
                 if not future.done():continue
                 del pending[i];next_run[i]=now+targets[i]['interval']
-                if generation!=state.generation:stale+=1;continue
-                outcome=future.result();r.observe(dict(kind='tcp',target=i,outcome=outcome,generation=generation))
-                health[str(i)]=outcome
-                if outcome in ('refused','timeout','network_error','dns_error'):
-                    # Ended captures are finalized by the progress barrier below.
-                    active=r.db.execute("SELECT end FROM incidents WHERE state='CAPTURING'").fetchone()
-                    if active is None or now<=active[0]:r.incident(dict(endpoints=[targets[i]['host']]))
+                outcome,start,end=future.result()
+                results=(results+[dict(target=i,generation=generation,outcome=outcome,start=start,end=end,stale=generation!=state.generation)])[-16:]
+                if not accept_result(r,health,targets[i],i,outcome,start,end,generation,state.generation):stale+=1;continue
+                checked[str(i)]=start
             # Same thread owns receive, writes and this commit: no pending writer queue.
             if not select.select([backend.socket],[],[],0)[0]:
                 r.observe(dict(kind='progress',generation=state.generation));committed=r.db.execute('SELECT max(seq) FROM observations').fetchone()[0]
-                for key,end in r.db.execute("SELECT id,end FROM incidents WHERE state='CAPTURING'").fetchall():
+                for key,first,end in r.db.execute("SELECT id,first,end FROM incidents WHERE state='CAPTURING'").fetchall():
                     if now>=end and not pending:
-                        recovered=state.status=='RECORDING' and len(health)==len(targets) and bool(targets) and all(x=='success' for x in health.values())
+                        recovered=recovery_ready(health,checked,len(targets),state.status,first)
                         # This watermark comes only from the successfully committed progress record.
                         r.finish(key,boottime(),r.epoch,r.watermark,recovered)
             expired=r.db.execute("SELECT 1 FROM incidents WHERE state='CAPTURING' AND end<=?",(now,)).fetchone()
             for i,target in enumerate(targets):
-                if not expired and state.status=='RECORDING' and i not in pending and now>=next_run[i]:pending[i]=(pool.submit(tcp,target),state.generation)
+                if not expired and state.status=='RECORDING' and i not in pending and now>=next_run[i]:
+                    started=dict(event=threading.Event());pending[i]=(pool.submit(measured_probe,target,started),state.generation,started)
     finally:
         pool.shutdown(wait=True,cancel_futures=True);backend.close();rpc.close();path.unlink(missing_ok=True);r.close()
 

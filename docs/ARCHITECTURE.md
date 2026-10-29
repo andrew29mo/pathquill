@@ -95,3 +95,9 @@ See [MILESTONE1.md](MILESTONE1.md) for the formal daemon, quiet-round state
 reconstruction, generation-bound workers and writer-commit-driven sealing.
 Capacity/export/deployment gates remain open. Historical exploration source
 fingerprints are retained and must not be treated as qualification of new code.
+
+
+Milestone review tightens observed recovery to post-incident probe starts for
+all targets, preserves generation rejection before DB/health mutation, and uses
+one fresh post-commit decision time at deadline boundaries. See MILESTONE1.md for
+the exact VM overlap and persisted barrier checks and remaining test limits.

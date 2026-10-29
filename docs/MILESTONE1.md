@@ -56,7 +56,11 @@ no real ENOBUFS qualification is claimed.
 Each worker result carries its launch generation. Results from prior generations
 are discarded before touching health or incident state. Failure triggers/merges
 a capture only while its window is open. UNKNOWN does not restore health.
-Recovery requires current-generation success for every configured target.
+Recovery requires the latest outcome for every configured target to be a
+current-generation success whose probe started at or after this incident began.
+An older success, even in the same generation, cannot satisfy recovery. This
+means observed recovery, not a guarantee that endpoints stayed reachable between
+probes.
 
 The owner thread handles received notifications and completed results, then
 commits a progress observation only when the socket is not currently readable.
@@ -99,3 +103,28 @@ Formal systemd packaging, clean installation, daemon VM reboot/autostart and
 bounded continuous-resource observation remain the deployment milestone. The
 prior normal reboot evidence applies to its recorded exploration sources, not
 this new daemon revision. No power loss, suspend or boot-zero-gap claim is made.
+
+## Milestone review corrections
+
+The 279587b review found a deadline race: the loop's cached time could precede
+incident.end while the observation commit finished after it. The formal
+accept_result path now checks a fresh post-commit decision time and passes that
+same time to incident admission. Expired merges are skipped; sealing continues.
+Injected-clock SQLite regression verifies this boundary and subsequent sealing.
+The local RPC handler rejects non-object JSON without stopping collection; the
+real VM fixture sends null and confirms the epoch remains unchanged.
+
+Stale generation handling is tested both with the formal acceptance function
+(no DB or health changes) and with an identified real worker result. Each bounded
+worker history entry records target, generation, BOOTTIME start/end, outcome and
+stale flag. The VM fixture requires its address mutation and observation to lie
+strictly inside the slow worker's interval, verifies writer sequence advancement,
+and checks that the stale target did not update health or persist an observation.
+This avoids inferring overlap merely from sleeping or a nonzero stale counter.
+
+The sealing fixture independently reads the persisted progress row selected by
+the daemon status and requires its time to reach the incident deadline. Reports
+also record OS/kernel/Python/machine and UTC run time. Source hashes remain the
+implementation provenance; environment metadata does not replace those hashes.
+The standalone freshness regression excludes pre-incident successes. A dedicated
+multi-target 60-second-interval VM freshness scenario has not been run.

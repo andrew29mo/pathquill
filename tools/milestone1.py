@@ -1,13 +1,14 @@
 """Real daemon milestone fixture; run under sudo unshare --net in a Linux VM."""
-import hashlib,html,json,os,signal,socket,subprocess,sys,tempfile,time,unittest,struct
+import hashlib,html,json,os,signal,socket,subprocess,sys,tempfile,time,unittest,struct,platform,datetime
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from pathquill.cli import call
+from pathquill.core import boottime
 
 def check(v,message):
     if not v:raise RuntimeError(message)
 def command(*args):subprocess.run(['sudo','ip',*args],check=True,timeout=5)
-r=dict(passed=False,mvp_qualified=False,cases=[],limits=['Normal kernel notifications only; loss/churn controls separately injected in tests','State converges after two equal quiet dumps; no atomic cross-table snapshot claim','DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim','No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification'])
+r=dict(passed=False,mvp_qualified=False,environment=dict(system=platform.system(),release=platform.release(),machine=platform.machine(),python=platform.python_version(),utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),cases=[],limits=['Normal kernel notifications only; loss/churn controls separately injected in tests','State converges after two equal quiet dumps; no atomic cross-table snapshot claim','DNS daemon probes explicit IPv4 UDP only; no general resolver compatibility claim','No systemd, VM reboot of daemon, power-loss, suspend or long-term operation qualification'])
 proc=None;server=None
 initial=ROOT/'evidence/milestone1.json';initial.write_text(json.dumps(dict(passed=False,status='in_progress'))+'\n')
 initial.with_suffix('.html').write_text('<pre>in_progress</pre>')
@@ -33,15 +34,27 @@ try:
                 time.sleep(.05)
             raise TimeoutError('daemon condition: '+(tmp/'daemon.log').read_text())
         first=wait(lambda v:v['state']=='RECORDING' and bool(v['incidents']))
+        with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as malformed:
+            malformed.settimeout(2);malformed.connect(str(tmp/'store/control.sock'));malformed.sendall(b'null');malformed.recv(1024)
+        check(status()['epoch']==first['epoch'],'malformed request restarted daemon')
         import sqlite3
         raw=sqlite3.connect('file:'+str(tmp/'store/state.db')+'?mode=ro',uri=True)
         check(any(json.loads(x[0]).get('kind')=='state_object' for x in raw.execute('SELECT body FROM observations')),'state projection not persisted');raw.close()
         # While a bounded slow connect is outstanding, mutate real network state.
-        time.sleep(.15);begin=time.monotonic();command('addr','add','10.55.0.3/24','dev','pq2')
-        changed=wait(lambda v:v['notifications']>0 and any(x['attributes'].get('1')=='0a370003' for x in (v['view'] or {}).get('addresses',{}).values()))
-        add_elapsed=time.monotonic()-begin
-        check(changed['committed']>0,'no committed progress')
-        resynced=call(tmp/'store','resync');stale=wait(lambda v:v['stale_results']>0)
+        inflight=wait(lambda v:any(p['target']==1 and p['started'] is not None and not p['done'] for p in v['pending']))
+        slow=next(p for p in inflight['pending'] if p['target']==1);before_progress=inflight['committed']
+        mutation_begin=boottime();begin=time.monotonic();command('addr','add','10.55.0.3/24','dev','pq2')
+        changed=wait(lambda v:v['committed']>before_progress and v['notifications']>0 and any(x['attributes'].get('1')=='0a370003' for x in (v['view'] or {}).get('addresses',{}).values()))
+        changed_observed=boottime();add_elapsed=time.monotonic()-begin
+        check(changed['committed']>before_progress,'no committed progress')
+        resynced=call(tmp/'store','resync');stale=wait(lambda v:any(x['target']==1 and x['generation']==slow['generation'] and x['stale'] and x['start']==slow['started'] for x in v['results']))
+        slow_result=next(x for x in stale['results'] if x['target']==1 and x['start']==slow['started'])
+        check(slow_result['start']<=mutation_begin<=changed_observed<slow_result['end'],'collection did not complete during outstanding slow probe')
+        check(slow_result['end']-slow_result['start']>=1.0 and add_elapsed<1.0,'slow probe overlap was not established')
+        check('1' not in stale['health'],'stale result changed health')
+        raw=sqlite3.connect('file:'+str(tmp/'store/state.db')+'?mode=ro',uri=True)
+        persisted=[json.loads(x[0]) for x in raw.execute('SELECT body FROM observations')];raw.close()
+        check(not any(x.get('target')==1 and x.get('generation')==slow['generation'] for x in persisted),'stale result persisted')
         command('addr','del','10.55.0.3/24','dev','pq2')
         removed=wait(lambda v:v['state']=='RECORDING' and not any(x['attributes'].get('1')=='0a370003' for x in v['view']['addresses'].values()))
         links=json.loads(subprocess.check_output(['ip','-j','link','show'],text=True))
@@ -55,7 +68,7 @@ try:
         routes=[]
         for family in ('-4','-6'):routes+=json.loads(subprocess.check_output(['ip','-j',family,'route','show','table','all'],text=True))
         check(len(routes)==len(removed['view']['routes']),'independent route count differs')
-        r['cases'].append(dict(name='real_address_add_delete_and_stale_result',notifications=removed['notifications'],stale=stale['stale_results'],add_observation_seconds=add_elapsed,independent_links_addresses=True,independent_route_count=len(routes),passed=True))
+        r['cases'].append(dict(name='real_address_add_delete_and_stale_result',notifications=removed['notifications'],stale=stale['stale_results'],add_observation_seconds=add_elapsed,stale_health_unchanged=True,stale_not_persisted=True,mutation_begin=mutation_begin,changed_observed=changed_observed,slow_result=slow_result,writer_progress_delta=changed['committed']-before_progress,independent_links_addresses=True,independent_route_count=len(routes),passed=True))
         # Separate one-target daemon so slow endpoint cannot mask recovery.
         proc.terminate();check(proc.wait(5)==0,'shutdown failed');check(not (tmp/'store/control.sock').exists(),'socket survived')
         server=socket.socket();server.bind(('127.0.0.1',port));server.listen()
@@ -81,10 +94,13 @@ try:
         thread=threading.Thread(target=accept,daemon=True);thread.start()
         completed=wait(lambda v:any(x['state']=='SEALED' and x['recovered'] for x in v['incidents']),40)
         from pathquill.core import boottime
+        raw=sqlite3.connect('file:'+str(tmp/'recovery/state.db')+'?mode=ro',uri=True)
+        progress=raw.execute('SELECT seq,t,body FROM observations WHERE seq=?',(completed['committed'],)).fetchone();raw.close()
+        check(progress is not None and progress[1]>=end_time and json.loads(progress[2])['kind']=='progress','no persisted deadline barrier')
         sealed_observed=boottime();check(sealed_observed>=end_time and end_time-first_time>=30,'sealed before real deadline')
         live=False;thread.join(2);server.close();server=None
         proc.terminate();check(proc.wait(5)==0,'shutdown failed');check(not (tmp/'recovery/control.sock').exists(),'socket cleanup failed')
-        r['cases'].append(dict(name='real_failure_recovery_and_committed_seal',committed=completed['committed'],window_seconds=end_time-first_time,sealed_observed_after_deadline=sealed_observed-end_time,incidents=completed['incidents'],passed=True))
+        r['cases'].append(dict(name='real_failure_recovery_and_committed_seal',committed=completed['committed'],window_seconds=end_time-first_time,persisted_barrier_sequence=progress[0],persisted_barrier_after_deadline=progress[1]-end_time,sealed_observed_after_deadline=sealed_observed-end_time,incidents=completed['incidents'],passed=True))
         udp=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);udp.bind(('127.0.0.1',0));udp.settimeout(.2)
         dns_live=True
         def dns_answer():
