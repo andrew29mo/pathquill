@@ -40,22 +40,26 @@ earlier exploration runner and its reports are historical.
 [Observed JSON](evidence/exploration.json), [HTML](evidence/exploration.html),
 [architecture and acceptance decisions](docs/ARCHITECTURE.md).
 
-## Current continuation
+## Historical exploration records
 
 See [continued explorations and reproduction](docs/CONTINUED.md),
-[current JSON](evidence/continued.json), [HTML](evidence/continued.html), and
+[historical JSON](evidence/continued.json), [HTML](evidence/continued.html), and
 [normal VM reboot JSON](evidence/reboot.json) / [HTML](evidence/reboot.html).
-The initial record above is historical. Current service behavior and evidence
-are described in [Milestone 1](docs/MILESTONE1.md). The current core adds a persistent
+These exploration/reboot reports describe their recorded older sources; their
+fingerprints differ from the current runtime. They do not qualify VM reboot of
+the installed service. The first daemon stage is described in
+[Milestone 1](docs/MILESTONE1.md); current deployment and closure are in
+[DEPLOYMENT.md](docs/DEPLOYMENT.md) and [CLOSEOUT.md](docs/CLOSEOUT.md).
+The implemented core includes a persistent
 observation ring, capture copies, read-only dump interval collection, real
 TCP/DNS trigger methods and actual tmpfs ENOSPC/readonly-startup checks.
 
 Individual stage reports retain mvp_qualified=false because they each cover a
 bounded slice. The planned functional closure and its aggregate verification
-status are summarized in CLOSEOUT.md; no stage establishes production readiness. No project license
+status are summarized in [CLOSEOUT.md](docs/CLOSEOUT.md); no stage establishes production readiness. No project license
 has been selected. No power-loss, physical media failure, zero-gap boot or
-long-term stability claims are made. See the continuation guide for precise
-injected-versus-real test distinctions and remaining MVP acceptance gates.
+long-term stability claims are made. See each stage guide for injected-versus-real test distinctions, and CLOSEOUT.md
+for the completed functional scope and remaining untested boundaries.
 
 ## Installed-service closeout
 
@@ -74,3 +78,10 @@ Exports have a 4,096-row/1 MiB input limit and a 256 KiB snapshot limit. Idle
 progress commits are coalesced at 100ms; high event rates can still exceed budgets
 and fail export safely. Export history has 32 permanent slots per store; explicit
 seal/archive/new-store handoff is available, automatic rollover is not.
+
+## Release status
+
+The final pre-publication review is recorded in
+[PREPUBLIC_REVIEW.md](docs/PREPUBLIC_REVIEW.md). The repository remains Private,
+and no project license is granted yet. The source/build/host dependency inventory
+is in [DEPENDENCIES.md](docs/DEPENDENCIES.md); it does not license Pathquill.

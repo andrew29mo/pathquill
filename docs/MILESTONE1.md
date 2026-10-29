@@ -96,7 +96,14 @@ commits. Another daemon independently captures real DNS SERVFAIL. Graceful exit
 and socket cleanup are checked. This is controlled integration evidence, not a
 WAN latency benchmark, leak test or systemd deployment qualification.
 
-## Remaining gates
+## Remaining gates at milestone 1 (historical)
+
+Capacity/retention, publication, installed systemd packaging, clean application
+installation and bounded resource observation were subsequently implemented and
+validated; see [RETENTION.md](RETENTION.md), [DEPLOYMENT.md](DEPLOYMENT.md) and
+[CLOSEOUT.md](CLOSEOUT.md). The statements below retain the original stage scope.
+Installed-service VM reboot/autostart remains unqualified.
+
 
 Capacity/retention and export-file ownership/publication remain milestone 2.
 Formal systemd packaging, clean installation, daemon VM reboot/autostart and

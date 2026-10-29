@@ -1,11 +1,12 @@
-> Historical exploration status; current service behavior and remaining gates are in [MILESTONE1.md](MILESTONE1.md).
+> Historical exploration status for the sources recorded in these reports. For the current installed-service contract and bounded closeout, see [DEPLOYMENT.md](DEPLOYMENT.md) and [CLOSEOUT.md](CLOSEOUT.md).
 
 # Continued technical explorations
 
-The current record is [continued.json](../evidence/continued.json), with the
+The continuation-stage record is [continued.json](../evidence/continued.json), with the
 same JSON escaped in [continued.html](../evidence/continued.html).
 [reboot.json](../evidence/reboot.json) and [HTML](../evidence/reboot.html) cover
-one normal VM reboot of the current core. Older exploration.json/html describe
+one normal VM reboot of that recorded core revision, not the latest daemon or
+installed systemd service. Older exploration.json/html describe
 the original revision only; their source fingerprints intentionally differ.
 
 ## Results and boundaries
@@ -69,12 +70,12 @@ only the after-phase report proves success. Reboot state is stored under guest
 /var/tmp and removed after successful verification. Failed runs retain it for
 inspection; no certificates, raw dataset, secrets or guest state are committed.
 
-## Remaining MVP gates
+## Remaining gates at this historical stage
 
 A complete service still needs decoded/reconciled current-state snapshots,
 continuous collection and event watermarks, bounded scheduling/recovery rules,
 retention, robust export-file snapshot/publication and lifecycle cleanup.
-The current export includes trigger metadata and aliases, not an observation
+The export at that stage includes trigger metadata and aliases, not an observation
 HTML timeline. Its in-memory result does not qualify file-export/GC races.
 All mutation paths need consistent degradation handling before service release;
 legacy Store gap/finish/delete are not a full storage-failure interface.
@@ -83,7 +84,7 @@ or long-term resource qualification is claimed. No project license selected.
 
 ## Review corrections
 
-The a097fb8 review found counterexamples missed by the initial 13 tests. Current
+The a097fb8 review found counterexamples missed by the initial 13 tests. The recorded continuation
 regressions cover expired captures refusing late merges, total payload accounting
 including incident bodies, delete reclaiming capture rows, reuse of same-boot
 prebuffer across process restart, and rejection of public store directories.

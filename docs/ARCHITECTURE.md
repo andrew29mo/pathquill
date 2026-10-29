@@ -1,5 +1,5 @@
 Current contracts: EXPORT_SNAPSHOT.md, PUBLICATION.md, PUBLICATION_RECOVERY.md
-and RETENTION.md. Sections below record chronological stages; early limitations
+RETENTION.md, DEPLOYMENT.md and CLOSEOUT.md. Sections below record chronological stages; early limitations
 are superseded only by the explicitly documented later stage.
 
 > Historical exploration status; the original service milestone is in [MILESTONE1.md](MILESTONE1.md). Current contracts are listed above.
@@ -71,8 +71,8 @@ power-loss recovery, WAN diagnosis or long-term stability claim is authorized.
 
 ## Continuation supersedes the initial exploration status
 
-See [CONTINUED.md](CONTINUED.md) for current evidence and remaining gates.
-The original four outcomes above are historical. The current Recorder adds a
+See [CONTINUED.md](CONTINUED.md) for continuation-stage evidence and its historical remaining gates.
+The original four outcomes above are historical. The then-current Recorder added a
 persistent prebuffer and capture copies, real TCP/DNS trigger calls, real dump
 interval evidence, filesystem ENOSPC/refusal-and-repair and normal VM reboot.
 It does not yet implement the full daemon. Admission and prebuffer copy are a
