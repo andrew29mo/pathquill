@@ -12,6 +12,7 @@ class Recorder(Store):
         with open('/proc/sys/kernel/random/boot_id') as boot:self.boot=boot.read().strip()
         super().__init__(*args,**kwargs)
         self.db.executescript('CREATE TABLE IF NOT EXISTS observations(seq INTEGER PRIMARY KEY AUTOINCREMENT,boot TEXT,epoch TEXT,t REAL,body TEXT); CREATE TABLE IF NOT EXISTS capture(id TEXT,seq INTEGER,body TEXT,PRIMARY KEY(id,seq));')
+        if 't' not in [row[1] for row in self.db.execute('PRAGMA table_info(capture)')]:self.db.execute('ALTER TABLE capture ADD COLUMN t REAL');self.db.commit()
         self.watermark=0
     def mutation(self,fn):
         if self.degraded:raise Refused('storage_degraded')
@@ -28,7 +29,7 @@ class Recorder(Store):
             active=self.db.execute("SELECT id FROM incidents WHERE state='CAPTURING' AND end>=?",(now,)).fetchall()
             if used+len(body.encode())*(1+len(active))>self.limit:raise Refused('observation_capacity')
             seq=self.db.execute('INSERT INTO observations(boot,epoch,t,body) VALUES(?,?,?,?)',(self.boot,self.epoch,now,body)).lastrowid
-            for key, in active:self.db.execute('INSERT INTO capture VALUES(?,?,?)',(key,seq,body))
+            for key, in active:self.db.execute('INSERT INTO capture(id,seq,body,t) VALUES(?,?,?,?)',(key,seq,body,now))
             return seq
         seq=self.mutation(write);self.watermark=now;return seq
     def incident(self,payload,now=None):
@@ -45,12 +46,12 @@ class Recorder(Store):
                 if self.db.execute('SELECT count(*) FROM incidents').fetchone()[0]>=self.slots:raise Refused('capacity_busy')
                 key=str(__import__('uuid').uuid4())
                 self.db.execute('INSERT INTO incidents VALUES(?,?,?,?,?,?,?,?)',(key,now,now+30,'CAPTURING','UNKNOWN','capturing',0,body))
-            rows=self.db.execute('SELECT seq,body FROM observations WHERE boot=? AND t>=? AND t<=?',(self.boot,(active[1] if active else now)-60,now)).fetchall()
+            rows=self.db.execute('SELECT seq,body,t FROM observations WHERE boot=? AND t>=? AND t<=?',(self.boot,(active[1] if active else now)-60,now)).fetchall()
             used=self.db.execute('SELECT coalesce(sum(length(CAST(body AS BLOB))),0) FROM capture').fetchone()[0]+self.db.execute('SELECT coalesce(sum(length(CAST(body AS BLOB))),0) FROM incidents').fetchone()[0]+self.db.execute('SELECT coalesce(sum(length(CAST(body AS BLOB))),0) FROM observations').fetchone()[0]
             existing={x[0] for x in self.db.execute('SELECT seq FROM capture WHERE id=?',(key,))}
-            extra=sum(len(body.encode()) for seq,body in rows if seq not in existing)
+            extra=sum(len(body.encode()) for seq,body,t in rows if seq not in existing)
             if used+extra>self.limit:raise Refused('capture_capacity')
-            for seq,body in rows:self.db.execute('INSERT OR IGNORE INTO capture VALUES(?,?,?)',(key,seq,body))
+            for seq,body,t in rows:self.db.execute('INSERT OR IGNORE INTO capture(id,seq,body,t) VALUES(?,?,?,?)',(key,seq,body,t))
             return key
         return self.mutation(write)
     def probe(self,host,port,family=socket.AF_INET,timeout=.3):

@@ -1,10 +1,10 @@
 # Pathquill
 
-Private Linux network incident recorder, through capacity/retention P0-1/P0-2.
+Private Linux network incident recorder, through fixed export snapshots P0-3a/P0-3b.
 No project license has been selected. The formal daemon now collects and
 reconstructs state, schedules bounded probes and drives incident lifecycle;
-capacity and retention are implemented; file export/deployment qualification
-remains incomplete. See [capacity contract and evidence](docs/CAPACITY.md).
+capacity and retention are implemented; durable deidentified snapshots are available; file publication/deployment
+qualification remains incomplete. See [snapshot contract and evidence](docs/EXPORT_SNAPSHOT.md). See [capacity contract and evidence](docs/CAPACITY.md).
 
 The original core is imported by tests; no alternate implementation is used.
 The Linux runner exercises an isolated network namespace inside a Colima VM,

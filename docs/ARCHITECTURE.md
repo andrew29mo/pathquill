@@ -113,3 +113,10 @@ eligibility-checked GC. Export-file lifecycle remains deferred.
 The P0 review separates GC scheduling from failed reconstruction retries and
 requires parent-owned success publication after worker/group/mount cleanup.
 See CAPACITY.md for the formal-loop failure injection and retained-data checks.
+
+## P0-3a / P0-3b fixed snapshot stage
+
+[EXPORT_SNAPSHOT.md](EXPORT_SNAPSHOT.md) defines durable request identity,
+transactional source protection, a fixed deidentified SQLite snapshot and
+conservative restart interruption. Snapshot read replies exclude raw daemon
+status. File publication and its cancellation/recovery boundaries remain P0-4.

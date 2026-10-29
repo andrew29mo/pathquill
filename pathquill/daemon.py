@@ -12,7 +12,7 @@ import socket
 import time
 import threading
 from .core import Refused,boottime
-from .managed import ManagedRecorder
+from .exports import ExportRecorder as ManagedRecorder
 from .netlink import RouteSocket
 from .state import State
 from .probes import dns_query
@@ -64,7 +64,7 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
         r.observe(dict(kind='sync',generation=state.generation,valid=ok))
         for key, in r.db.execute("SELECT id FROM incidents WHERE state='CAPTURING'").fetchall():r.gap(key,'resynchronize')
     try:
-        rebuild();last_retry=boottime();last_gc=boottime()
+        rebuild();last_retry=boottime();last_gc=boottime();last_export=boottime()
         while running:
             # Drain currently available notifications before committing a progress barrier.
             reads,_,_=select.select([backend.socket,rpc],[],[],.02)
@@ -85,14 +85,21 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                         if len(data)>4096:raise ValueError('request_size')
                         request=json.loads(data)
                         if not isinstance(request,dict):raise ValueError('request_type')
-                        if request.get('op')=='resync':rebuild()
+                        export_result=None
+                        if request.get('op')=='export':export_result=r.request_export(request.get('request'),request.get('id'),request.get('seconds',30),request.get('epoch'))
+                        elif request.get('op')=='export-status':export_result=r.export_status(request.get('request'))
+                        elif request.get('op')=='export-cancel':export_result=r.cancel_export(request.get('request'),request.get('epoch'))
+                        elif request.get('op')=='export-read':export_result=r.read_snapshot(request.get('request'))
+                        elif request.get('op')=='resync':rebuild()
                         elif request.get('op')=='gc':r.collect(request.get('epoch'))
                         elif request.get('op')=='delete':r.remove(request.get('id'),request.get('epoch'))
                         elif request.get('op')=='hold':r.hold(request.get('id'),request.get('epoch'))
                         elif request.get('op')=='release':r.release(request.get('id'),request.get('token'),request.get('epoch'))
                         elif request.get('op')!='status':raise ValueError('unknown_operation')
+                        if request.get('op')=='export-read':
+                            conn.sendall(json.dumps(dict(ok=True,export=export_result)).encode());continue
                         incidents=[dict(id=x[0],state=x[1],coverage=x[2],recovered=bool(x[3])) for x in r.db.execute('SELECT id,state,coverage,recovered FROM incidents')]
-                        reply=dict(ok=True,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
+                        reply=dict(ok=True,export=export_result,capacity=r.usage(),epoch=r.epoch,generation=state.generation,state=state.status,view=state.view,health=health,health_probe_started=checked,stale_results=stale,gaps=state.gaps,committed=committed,notifications=observed,incidents=incidents,pending=[dict(target=i,generation=p[1],started=p[2].get('at') if p[2]['event'].is_set() else None,done=p[0].done()) for i,p in pending.items()],results=results)
                         conn.sendall(json.dumps(reply).encode())
                     except Refused as error:
                         try:conn.sendall(json.dumps(dict(ok=False,error=str(error))).encode())
@@ -111,6 +118,8 @@ def serve(root,targets,data_limit=1048576,slots=32,retention=86400):
                 if not accept_result(r,health,targets[i],i,outcome,start,end,generation,state.generation):
                     stale+=int(generation!=state.generation);continue
                 checked[str(i)]=start
+            if not r.degraded and now-last_export>=1:
+                r.advance_exports();last_export=now
             if not r.degraded and now-last_gc>=1:
                 r.collect(r.epoch);last_gc=now
             # Same thread owns receive, writes and this commit: no pending writer queue.

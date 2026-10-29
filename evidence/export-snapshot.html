@@ -1,0 +1,59 @@
+<!doctype html><meta charset="utf-8"><pre>{
+  &quot;passed&quot;: true,
+  &quot;mvp_qualified&quot;: false,
+  &quot;cases&quot;: [
+    {
+      &quot;name&quot;: &quot;dedup_cancel_and_new_owner_protection&quot;,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;fixed_redacted_snapshot_survives_source_gc&quot;,
+      &quot;observations&quot;: 3,
+      &quot;snapshot_digest&quot;: &quot;59a52a7d296279b9a6cb23d8763f2bf093736f5fb2c65b37bc05b45af418da37&quot;,
+      &quot;raw_values_absent&quot;: true,
+      &quot;passed&quot;: true
+    },
+    {
+      &quot;name&quot;: &quot;restart_interrupts_pending_preserves_ready_and_other_owner&quot;,
+      &quot;passed&quot;: true
+    }
+  ],
+  &quot;environment&quot;: {
+    &quot;system&quot;: &quot;Linux VM&quot;,
+    &quot;utc&quot;: &quot;2026-10-29T04:53:47.898673+00:00&quot;
+  },
+  &quot;limits&quot;: [
+    &quot;Sources are synthetic privacy fixtures seeded through product API, not real network incidents&quot;,
+    &quot;Process SIGKILL/restart only; no VM reboot or power loss&quot;,
+    &quot;SQLite snapshot only; no published export files or atomic filesystem publication&quot;,
+    &quot;Unknown ownership is fail-closed BLOCKED; operator repair interface remains deferred&quot;
+  ],
+  &quot;tests&quot;: 56,
+  &quot;source&quot;: {
+    &quot;pathquill/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;pathquill/cli.py&quot;: &quot;48c885378aaa53b638e5f0d499c1ae3d89e0e2d2b388b713c2e64786709018e3&quot;,
+    &quot;pathquill/core.py&quot;: &quot;23baf7ee6b3e85f4d9fe3a9574bed3d31e172fa11884be708c96a74802e91ecb&quot;,
+    &quot;pathquill/daemon.py&quot;: &quot;7e79ca6730ec259ec65879ca8456a9ac907653f5448c754586818380a044ebe6&quot;,
+    &quot;pathquill/exports.py&quot;: &quot;65d61a1a9b15f92f2d246bad75f4d664013729ebf85d759349ad544b9a926458&quot;,
+    &quot;pathquill/managed.py&quot;: &quot;c9338fad24958b884930fedc4f66fbc6795106ffe154bd5ed7da75d0086d3c91&quot;,
+    &quot;pathquill/netlink.py&quot;: &quot;24db92eb67fa940de3b58e1975be779de0978a74b81adedb0a3ad4ddc231b53c&quot;,
+    &quot;pathquill/probes.py&quot;: &quot;042325f89b947630a05e75476d27287a6eb542e0f48f1eb0ec6e976497d64169&quot;,
+    &quot;pathquill/recorder.py&quot;: &quot;3ffe383585ce5b71b8c315ce7a15ee8c417700ecfb4b6a04a8ca8800f36b2639&quot;,
+    &quot;pathquill/redaction.py&quot;: &quot;a8252f855d43660176bb91188bb61cd9591720aacf06f3efe738e88771251d77&quot;,
+    &quot;pathquill/state.py&quot;: &quot;166d9dff9a433a42a0dc47315798c680db5f99ccc4057dfea37c41fa2d1e26c7&quot;,
+    &quot;tests/__init__.py&quot;: &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    &quot;tests/test_core.py&quot;: &quot;1cc780e9b6a18021372ab8fc93a6ad8f949fe608a594ae3fdc289aa04edd9b19&quot;,
+    &quot;tests/test_daemon.py&quot;: &quot;78f2ed4188f1da1accf988aed2dce5a697e2b391de7ec4e671d0e32a89fb9513&quot;,
+    &quot;tests/test_exports.py&quot;: &quot;6d6d3cd822c3dc9a7a5027e21006a469dda1c2758ba133a7b9463adb996ebe2b&quot;,
+    &quot;tests/test_managed.py&quot;: &quot;5aa028b6af08bb3d0bf8abdb9c51ecec7aff7b162834c5f0411eb68f5e16fb26&quot;,
+    &quot;tests/test_netlink.py&quot;: &quot;ca3b8a188be130ea7adfb1c9d854f73c60a6631dddbfb26ff02d5264244c4c20&quot;,
+    &quot;tests/test_recorder.py&quot;: &quot;7618182dee3231c579c3789de7d46f8db49ff6ba787d845dd9acee9681959eef&quot;,
+    &quot;tests/test_reporting.py&quot;: &quot;af0235d16d6316ac0b05eb22a61c1266b5684f29e52795a4d512b4a89dbad29c&quot;,
+    &quot;tests/test_state.py&quot;: &quot;f25660dc794a3371c8245777c27d854ade16e38047da0aebe089eb9f50f8fc89&quot;,
+    &quot;tests/test_supervision.py&quot;: &quot;7679493012f227072b8c84b82d48f8aabbc28babc65036493e78d422ea97ae39&quot;,
+    &quot;tools/export_snapshot.py&quot;: &quot;3f0ab12ac41345f336eea2bb0de635467de9621c7f2dc2a8957a884d3017cee8&quot;,
+    &quot;tools/supervision.py&quot;: &quot;e7f93a4816aa6c4e16435f6b46ba09f8b89b8c761f3390f6987b4ceb796854b1&quot;,
+    &quot;pyproject.toml&quot;: &quot;a48e9840545c10245aad57409d2425703ac5556e6038a341a7e4672f3f116123&quot;
+  },
+  &quot;orchestrator_cleanup&quot;: true
+}</pre>
