@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.supervision import run_group
 from tools.service_evidence import rate_limit_proof,sealed_exit_proof
 from tools.closeout_checks import cleanup_safe
-FINAL=ROOT/('evidence/closeout.json' if len(sys.argv)>1 and sys.argv[1]=='orchestrate-closeout' else 'evidence/deployment.json');UNIT='pathquill.service';PY='/opt/pathquill/venv/bin/python';STATE='/var/lib/pathquill/store'
+FINAL=ROOT/({'orchestrate-closeout':'evidence/closeout.json','orchestrate-use-case':'evidence/use-case.json'}.get(sys.argv[1] if len(sys.argv)>1 else '', 'evidence/deployment.json'));UNIT='pathquill.service';PY='/opt/pathquill/venv/bin/python';STATE='/var/lib/pathquill/store'
 PATHS=[Path(p) for p in ('/opt/pathquill','/etc/pathquill','/var/lib/pathquill','/etc/systemd/system/pathquill.service','/etc/systemd/system/pathquill.service.d')]
 def write(path,value):
     path.write_text(json.dumps(value,indent=2)+'\n');path.with_suffix('.html').write_text('<!doctype html><meta charset="utf-8"><pre>'+html.escape(json.dumps(value,indent=2))+'</pre>')
@@ -23,14 +23,14 @@ def wait(predicate,seconds=12):
         except (OSError,ValueError,KeyError,subprocess.CalledProcessError):pass
         time.sleep(.05)
     raise TimeoutError('deployment condition')
-def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/closeout.py',ROOT/'tools/closeout_checks.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml'] if p.is_file()}
+def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/closeout.py',ROOT/'tools/closeout_checks.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml',*([ROOT/'LICENSE',ROOT/'tools/use_case.py',ROOT/'tools/use_case_checks.py'] if mode=='orchestrate-use-case' else [])] if p.is_file()}
 mode=sys.argv[1] if len(sys.argv)>1 else None
-if not ((mode=='worker' and len(sys.argv)==4) or (mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2)):write(FINAL,dict(passed=False,status='invalid_invocation'))
-if mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2:
+if not ((mode=='worker' and len(sys.argv)==4) or (mode in ('orchestrate','orchestrate-closeout','orchestrate-use-case') and len(sys.argv)==2)):write(FINAL,dict(passed=False,status='invalid_invocation'))
+if mode in ('orchestrate','orchestrate-closeout','orchestrate-use-case') and len(sys.argv)==2:
     if FINAL.exists():
         previous=json.loads(FINAL.read_text())
         if previous.get('error'):
-            folder=ROOT/('evidence/closeout-attempts' if mode=='orchestrate-closeout' else 'evidence/deployment-attempts');folder.mkdir(exist_ok=True)
+            folder=ROOT/('evidence/use-case-attempts' if mode=='orchestrate-use-case' else ('evidence/closeout-attempts' if mode=='orchestrate-closeout' else 'evidence/deployment-attempts'));folder.mkdir(exist_ok=True)
             write(folder/('attempt-'+uuid.uuid4().hex[:12]+'.json'),previous)
     def terminated(*_):raise InterruptedError('orchestrator_terminated')
     signal.signal(signal.SIGTERM,terminated)
@@ -46,6 +46,7 @@ if mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2:
             check(clean_vm['application_absent'] and clean_vm['boot_sha256']==hashlib.sha256(Path('/proc/sys/kernel/random/boot_id').read_bytes()).hexdigest(),'missing/mismatched clean VM receipt')
         with tempfile.TemporaryDirectory(prefix='pq-deploy-') as tmp:
             tmp=Path(tmp);build=tmp/'source';build.mkdir();shutil.copytree(ROOT/'pathquill',build/'pathquill',ignore=shutil.ignore_patterns('__pycache__'));shutil.copy(ROOT/'pyproject.toml',build/'pyproject.toml')
+            shutil.copy(ROOT/'LICENSE',build/'LICENSE')
             run(['python3','-m','venv',str(tmp/'builder')],timeout=30)
             print('Building wheel from copied, fingerprinted source',flush=True)
             run([str(tmp/'builder/bin/python'),'-I','-m','pip','wheel','--no-deps','--wheel-dir',str(tmp/'wheels'),str(build)],timeout=180,cwd='/')
@@ -76,9 +77,10 @@ if mode in ('orchestrate','orchestrate-closeout') and len(sys.argv)==2:
             setup['installed_module_hashes']=modules;setup['isolated_site_packages_import']=True
             ns='pqdeploy-'+uuid.uuid4().hex[:8];run(['ip','netns','add',ns]);run(['ip','-n',ns,'link','set','lo','up']);run(['ip','-n',ns,'link','add','pqmarker0','type','dummy']);run(['ip','-n',ns,'addr','add','198.18.0.1/24','dev','pqmarker0']);run(['ip','-n',ns,'link','set','pqmarker0','up']);run(['ip','-n',ns,'route','add','198.19.0.0/24','dev','pqmarker0'])
             output=tmp/'worker.json'
-            code=run_group([sys.executable,str(ROOT/'tools/closeout.py') if mode=='orchestrate-closeout' else __file__,'worker',str(output),ns],600 if mode=='orchestrate-closeout' else 100)
+            code=run_group([sys.executable,str(ROOT/'tools/use_case.py') if mode=='orchestrate-use-case' else (str(ROOT/'tools/closeout.py') if mode=='orchestrate-closeout' else __file__),'worker',str(output),ns],600 if mode=='orchestrate-closeout' else (160 if mode=='orchestrate-use-case' else 100))
             result=json.loads(output.read_text());check(code==0 and result['passed'],'worker did not pass')
             required={'real_fault_recovery_export_copy_retire_same_service','32_history_refusal_seal_archive_new_store_old_authority_rejected'} if mode=='orchestrate-closeout' else {'default_network_and_unprivileged_service','normal_stop_cleans_processes_and_socket','explicit_namespace_probe_and_sigkill_takeover','restart_limit_then_repair','sealed_store_no_restart_loop'}
+            if mode=='orchestrate-use-case':required={'tcp_failure_recovery_export','copy_verify_retire_and_raw_reclaim','history_full_manual_handoff_new_work'}
             check({c['name'] for c in result['cases']}==required and all(c['passed'] for c in result['cases']),'missing/failed deployment cases')
             result['installation']=setup
             if clean_vm is not None:result['clean_vm_provisioning']=clean_vm

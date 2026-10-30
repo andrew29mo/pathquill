@@ -1,8 +1,9 @@
 # Final pre-publication review
 
 Date: 2026-10-29. Reviewed code/test/evidence baseline: ed781910be7e7f6227450f19ab946c23ecb95805.
-Follow-up changes in this review clarify documentation only; production code,
-tests, deployment assets and qualification reports remain at that same content.
+Follow-up changes in this review clarified documentation only; production code,
+tests, deployment assets and qualification reports remained at that same content
+at review time; subsequent demo changes are described in USE_CASE.md.
 GitHub was Private during this review. The subsequently authorized public
 release is recorded in [PUBLIC_RELEASE.md](PUBLIC_RELEASE.md). MIT was selected after this review; see the licensing
 addendum in [DEPENDENCIES.md](DEPENDENCIES.md).
@@ -16,10 +17,11 @@ source suite was rerun in the existing isolated VM: 111 tests passed.
 
 Seven current regression reports (deployment, retention, publication recovery,
 publication, export snapshot, capacity and milestone 1) each record the same
-111 distinct source tests. Runtime/test fingerprints still match current files; the original pyproject
+111 distinct source tests. At this review, runtime/test fingerprints matched the recorded baseline; the original pyproject
 fingerprint predates the licensing-only metadata addition documented in
 DEPENDENCIES.md.
 The closeout report's installed-module fingerprints match production source.
+The later demonstration adds tools/tests with separate evidence in USE_CASE.md.
 All top-level JSON/HTML report pairs represent identical objects. Resource
 summary recomputation matches the report and fixed acceptance limits:
 

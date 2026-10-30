@@ -24,14 +24,14 @@ settings, not proof that the application is production-ready.
 ## Verification scope
 
 The public README, MIT text and JSON/HTML evidence must be reachable without an
-Authorization header. Current code/test fingerprints still match the recorded
-Linux validation; only licensing metadata and documentation changed since those
-measurements. The original pyproject SHA and wheel digests remain historical,
+Authorization header. At publication, code/test fingerprints matched the recorded Linux validation,
+apart from licensing metadata. Later demonstration tools/tests have their own
+evidence in USE_CASE.md; application runtime bytes remain unchanged. The original pyproject SHA and wheel digests remain historical,
 as explained in [DEPENDENCIES.md](DEPENDENCIES.md).
 
 The bounded closeout covered about 330 seconds, 9 actual TCP fault/recovery/export/
 retire cycles and 161 samples with no service restart during that observation.
-There are 111 distinct source tests, not 777 distinct tests across seven repeated
+That closeout recorded 111 distinct source tests, not 777 distinct tests across seven repeated
 regression runs. See [CLOSEOUT.md](CLOSEOUT.md) for precise evidence and thresholds.
 
 Request history remains limited to 32 entries per store, followed by explicit

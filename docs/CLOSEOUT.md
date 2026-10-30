@@ -183,9 +183,9 @@ completeness under arbitrary load.
 
 The final same-source run passed and completed cleanup. Seven regression flows
 (deployment, retention, publication recovery, publication, snapshot, capacity and
-milestone 1) also passed with 111 distinct source tests each. Their current
-runtime/test fingerprints match this checkout; installed-module hashes match
-those production source bytes. These are repeated executions of the same 111
+milestone 1) also passed with 111 distinct source tests each. Their recorded runtime/test fingerprints identify that closeout revision;
+installed-module hashes match the same production source bytes. Later demo
+tool/test additions have separate evidence in [USE_CASE.md](USE_CASE.md). These are repeated executions of the same 111
 tests, not 777 different tests.
 
 | Observation | Final result |

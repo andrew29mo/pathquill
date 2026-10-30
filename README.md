@@ -23,6 +23,17 @@ default VM network from a test-only namespace override. No alternate recorder
 implementation is used. Root prepares isolated fixtures and installs the service;
 cleanup checks processes and owned resources before reporting success.
 
+## Complete worked example
+
+Start with [A TCP failure, a shareable package, and a full store](docs/USE_CASE.md).
+It includes English setup/operation instructions, a one-command installed-service
+VM demonstration, the [actual copied product package](examples/tcp-recovery/README.md)
+and [JSON](evidence/use-case.json) / [HTML](evidence/use-case.html) verification.
+The flow covers failure/recovery, copy-before-retirement, raw capture reclamation,
+32-slot refusal, manual seal/archive/new-store handoff and new real work.
+The new demonstration passed 115 source tests; historical 111-test/330-second
+records retain their original scope. Production runtime code is unchanged.
+
 ## Reproduce
 
 Python 3.12+ on Linux, iproute2, sudo and unshare are required. From this checkout:

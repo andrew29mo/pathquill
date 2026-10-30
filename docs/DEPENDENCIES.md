@@ -36,11 +36,12 @@ The project MIT license does not relicense upstream components.
 
 ## Licensing addendum (2026-10-29)
 
-Only LICENSE, project licensing metadata and documentation changed after the
-reviewed code baseline. Existing reports remain immutable measurement records:
+At the licensing stage, only LICENSE, project licensing metadata and
+documentation changed after the reviewed code baseline. The subsequent
+use-case demonstration adds tools/tests, as documented in USE_CASE.md. Existing reports remain immutable measurement records:
 their pre-license status strings, old pyproject SHA and old wheel hashes describe
-the originally measured artifacts. Runtime and test source fingerprints are
-unchanged. The new package is checked separately for MIT metadata, included
+the originally measured artifacts. At that licensing stage, runtime and test source fingerprints were unchanged;
+the application runtime remains unchanged in the later demo too. The new package is checked separately for MIT metadata, included
 license text and byte-identical runtime modules; prior timing/RSS results are
 not represented as a fresh measurement of the newly built wheel.
 
