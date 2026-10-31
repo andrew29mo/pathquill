@@ -25,6 +25,10 @@ cleanup checks processes and owned resources before reporting success.
 
 ## Complete worked example
 
+New to the project? Use the [first-user trial and feedback checklist](docs/TRYOUT.md)
+to follow the manual workflow and record where help is needed. Features are frozen
+pending user feedback; no external-user trial is claimed yet.
+
 Start with [A TCP failure, a shareable package, and a full store](docs/USE_CASE.md).
 It includes English setup/operation instructions, a one-command installed-service
 VM demonstration, the [actual copied product package](examples/tcp-recovery/README.md)
