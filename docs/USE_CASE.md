@@ -54,7 +54,8 @@ Outputs:
 | results/use-case/runs/RUN_ID/private-cli.jsonl | **Private** raw CLI replies/errors, directory 0700 and file 0600; never commit |
 | examples/tcp-recovery/package/ | Checked-in copy from the recorded successful run, not rewritten by rerunning the demo |
 
-The report names its output directory and records per-file hashes/lengths so you
+Private run outputs belong to the checkout directory owner, which need not be
+UID 501. The report names its output directory and records per-file hashes/lengths so you
 can bind the checked-in sample to an actual export. Each run gets a new local
 output directory. Reports from failed attempts are retained separately under
 evidence/use-case-attempts. The runner removes only its fresh application paths,
@@ -117,12 +118,35 @@ Back in terminal A:
 ```bash
 pq_root=/var/lib/pathquill/store
 pq() { sudo -u pathquill /opt/pathquill/venv/bin/python -I -m pathquill.cli --root "$pq_root" "$@"; }
+pq_ready() {
+  local pq_ready_mode="$1" pq_try
+  for pq_try in {1..60}; do
+    if pq --op status > "$pq_private/status.pending" 2> "$pq_private/status-error.txt"; then
+      if python3 - "$pq_private/status.pending" "$pq_ready_mode" <<'PYREADY'
+import json,sys
+v=json.load(open(sys.argv[1]))
+ok=v.get('ok') is True and v.get('state')=='RECORDING'
+if sys.argv[2]=='healthy':ok=ok and v.get('health',{}).get('0')=='success'
+raise SystemExit(0 if ok else 1)
+PYREADY
+      then
+        mv "$pq_private/status.pending" "$pq_private/status.json"
+        return 0
+      fi
+    fi
+    sleep 0.1
+  done
+  echo 'Readiness failed; inspect the private status/error files' >&2
+  return 1
+}
 sudo systemctl start pathquill.service
-pq --op status > "$pq_private/status.json"
+pq_ready healthy
 ```
 
-Type=simple means systemctl active is not application readiness. Retry status
-if the control socket does not yet exist. Proceed only when state is RECORDING
+Type=simple means systemctl active is not application readiness. The helper
+uses at most 60 CLI attempts, each with the CLI socket timeout; it handles startup
+connection failures inside a conditional so set -e does not end the shell early.
+This is a bounded retry policy, not a hard wall-clock readiness SLA. Proceed only when state is RECORDING
 and health["0"] is success. Keep the raw response private. Save authority:
 
 ```bash
@@ -161,6 +185,10 @@ request ID expecting it to start new work.
 pq --op export-read --request incident_demo > "$pq_private/snapshot-reply.json"
 pq --op export-publish --request incident_demo --store "$pq_store" --epoch "$pq_epoch" > "$pq_private/published.json"
 pq_package=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["export"]["package"])' < "$pq_private/published.json")
+if [ -e "$pq_private/copied-package" ] || [ -L "$pq_private/copied-package" ]; then
+  echo 'Copy destination already exists; preserve it and choose a new private directory' >&2
+  exit 1
+fi
 sudo cp -a "/var/lib/pathquill/store/packages/$pq_package" "$pq_private/copied-package"
 sudo chown -R "$(id -u):$(id -g)" "$pq_private/copied-package"
 ```
@@ -169,12 +197,26 @@ Run this check from the checkout before sharing or retiring the managed package:
 
 ```bash
 python3 - "$pq_private/copied-package" "$pq_store" "$pq_epoch" "$pq_incident" "$pq_package" <<'PYCHECK'
-import pathlib,sys
+import pathlib,sys,json,ipaddress,subprocess
 from tools.use_case_checks import verify_package
 p=pathlib.Path(sys.argv[1])
-sensitive=set(sys.argv[2:]) | {'198.18.0.1','c6120001','127.0.0.1','7f000001',
+sensitive=set(sys.argv[2:]) | {'198.18.0.1','c6120001','198.19.0.0','c6130000','127.0.0.1','7f000001',
     '::1','00000000000000000000000000000001','pqprivate0',
     '02:11:22:33:44:55','021122334455','/var/lib/pathquill/store'}
+# Read actual namespace values, including non-interface route destinations.
+for row in json.loads(subprocess.check_output(['sudo','ip','-n','pq-example','-j','address'])):
+    if row['ifname']!='lo':sensitive.add(row['ifname'])
+    mac=row.get('address')
+    if mac:sensitive.update((mac,mac.replace(':','')))
+    for a in row['addr_info']:
+        ip=ipaddress.ip_address(a['local']);sensitive.update((str(ip),ip.packed.hex()))
+for family in ('-4','-6'):
+    for row in json.loads(subprocess.check_output(['sudo','ip','-n','pq-example','-j',family,'route','show','table','all'])):
+        for key in ('dst','gateway','prefsrc'):
+            value=row.get(key)
+            if value and value!='default':
+                ip=ipaddress.ip_interface(value).ip if '/' in value else ipaddress.ip_address(value)
+                sensitive.update((str(ip),ip.packed.hex()))
 print(verify_package({f.name:f.read_bytes() for f in p.iterdir()},sensitive))
 PYCHECK
 ```
@@ -219,6 +261,14 @@ done
 if pq --op export --request overflow --id "$pq_incident" --seconds 60 --store "$pq_store" --epoch "$pq_epoch" > "$pq_private/overflow.json"; then
   echo 'Unexpected admission: stop and inspect' >&2; exit 1
 fi
+pq --op status > "$pq_private/full-status.json"
+python3 - "$pq_private/overflow.json" "$pq_private/full-status.json" <<'PYFULL'
+import json,sys
+error=json.load(open(sys.argv[1]));state=json.load(open(sys.argv[2]))
+assert error.get('ok') is False and error.get('error')=='export_history_full'
+assert state['capacity']['export_history']==dict(used=32,limit=32,remaining=0)
+assert not state['capacity']['holds']
+PYFULL
 pq --op delete --id "$pq_incident" --store "$pq_store" --epoch "$pq_epoch" > "$pq_private/raw-deletion.json"
 pq --op status > "$pq_private/full-status.json"
 ```
@@ -239,18 +289,21 @@ sudo systemctl stop pathquill.service
 # Stop terminal B's listener now.
 printf '[]\n' | sudo tee /etc/pathquill/config.json >/dev/null
 sudo systemctl start pathquill.service
-pq --op status > "$pq_private/idle-status.json"
-# Wait for RECORDING; retain the stable store ID and refresh the runtime epoch.
+pq_ready idle
+cp "$pq_private/status.json" "$pq_private/idle-status.json"
+# The helper has required RECORDING; retain the stable store ID and refresh the runtime epoch.
 pq_epoch=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["epoch"])' < "$pq_private/idle-status.json")
 pq --op store-seal --store "$pq_store" --epoch "$pq_epoch" > "$pq_private/seal.json"
-# Wait for MainPID=0 before these offline commands:
+# Require MainPID=0 before these offline commands:
+timeout 15 sh -c 'while [ "$(systemctl show pathquill.service --property=MainPID --value)" != 0 ]; do sleep 0.1; done'
 pq --op store-archive --store "$pq_store" > "$pq_private/archive-reply.json"
 sudo -u pathquill /opt/pathquill/venv/bin/python -I -m pathquill.cli --root /var/lib/pathquill/new-store --op store-new --archive "$pq_root" --store "$pq_store" > "$pq_private/new-store.json"
 printf '[Service]\nExecStart=\nExecStart=/opt/pathquill/venv/bin/python -I -m pathquill.daemon --root /var/lib/pathquill/new-store --config /etc/pathquill/config.json\n' | sudo tee /etc/systemd/system/pathquill.service.d/root.conf >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl start pathquill.service
 pq_root=/var/lib/pathquill/new-store
-pq --op status > "$pq_private/fresh-status.json"
+pq_ready idle
+cp "$pq_private/status.json" "$pq_private/fresh-status.json"
 ```
 
 Require a different store ID, new epoch and zero history entries. Refresh both
@@ -270,7 +323,7 @@ automated demo owns and removes only its own fresh fixture installation.
 
 ## Evidence and limits
 
-See [use-case JSON](../evidence/use-case.json) / [HTML](../evidence/use-case.html)
+See [current use-case JSON](../evidence/use-case.json) / [HTML](../evidence/use-case.html)
 and [the copied product package](../examples/tcp-recovery/README.md).
 Existing benchmark reports stay unchanged: the runtime implementation is the same;
 this addition changes demonstration tools/tests, not the application's features.
@@ -283,7 +336,7 @@ long-term resource stability, installed-service VM reboot/autostart, sudden
 power loss or zero-gap boot qualification. No external-user usability study has
 yet been performed.
 
-## Recorded successful run (2026-10-30)
+## Original successful run (2026-10-30)
 
 The use-case worker completed in about 73 seconds on the existing isolated
 Linux VM. All three required cases and orchestrator cleanup passed. The source
@@ -318,3 +371,24 @@ These are observations from the recorded VM run, not fixed wait times.
 | retired_and_raw_reclaimed | 41.07 |
 | manual_seal_archive_new_store | 41.69 |
 | new_store_accepts_fresh_real_work | 72.67 |
+
+## Review corrections (2026-11-01)
+
+The original sample and its source-bound report are preserved in
+[use-case-original.json](../evidence/use-case-original.json) /
+[HTML](../evidence/use-case-original.html). The current use-case report verifies
+the reviewed runner separately; it does not overwrite or reattribute the original
+checked-in sample.
+
+Private output ownership now follows the checkout owner. A root-only Linux
+regression uses checkout UID/GID 1000, requires that UID to read the 0600 trace
+and requires a different UID 501 to be denied. The public validator scans decoded
+JSON as well as raw bytes, requires meaningful link/address/route alias relations
+and exact HTML, and the fixture collects non-interface route destinations too.
+Negative tests reject escaped known values, missing state, raw route values and
+valid-hash HTML trailers. Cleanup-only failed reports are retained.
+
+The manual instructions now bound startup retries under set -e, refuse an
+existing copy destination, verify exact history-full/hold state before raw
+deletion, and require process exit before offline archive operations.
+These are demonstration/documentation fixes; no application feature was added.

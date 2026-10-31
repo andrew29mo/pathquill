@@ -5,6 +5,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.supervision import run_group
 from tools.service_evidence import rate_limit_proof,sealed_exit_proof
 from tools.closeout_checks import cleanup_safe
+from tools.use_case_checks import retain_attempt
 FINAL=ROOT/({'orchestrate-closeout':'evidence/closeout.json','orchestrate-use-case':'evidence/use-case.json'}.get(sys.argv[1] if len(sys.argv)>1 else '', 'evidence/deployment.json'));UNIT='pathquill.service';PY='/opt/pathquill/venv/bin/python';STATE='/var/lib/pathquill/store'
 PATHS=[Path(p) for p in ('/opt/pathquill','/etc/pathquill','/var/lib/pathquill','/etc/systemd/system/pathquill.service','/etc/systemd/system/pathquill.service.d')]
 def write(path,value):
@@ -23,13 +24,13 @@ def wait(predicate,seconds=12):
         except (OSError,ValueError,KeyError,subprocess.CalledProcessError):pass
         time.sleep(.05)
     raise TimeoutError('deployment condition')
-def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/closeout.py',ROOT/'tools/closeout_checks.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml',*([ROOT/'LICENSE',ROOT/'tools/use_case.py',ROOT/'tools/use_case_checks.py'] if mode=='orchestrate-use-case' else [])] if p.is_file()}
+def source():return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'pathquill').glob('*.py')),*sorted((ROOT/'tests').glob('*.py')),*sorted((ROOT/'deploy').glob('*')),ROOT/'tools/deployment.py',ROOT/'tools/service_evidence.py',ROOT/'tools/closeout.py',ROOT/'tools/closeout_checks.py',ROOT/'tools/supervision.py',ROOT/'pyproject.toml',*([ROOT/'LICENSE',ROOT/'docs/USE_CASE.md',ROOT/'tools/use_case.py',ROOT/'tools/use_case_checks.py'] if mode=='orchestrate-use-case' else [])] if p.is_file()}
 mode=sys.argv[1] if len(sys.argv)>1 else None
 if not ((mode=='worker' and len(sys.argv)==4) or (mode in ('orchestrate','orchestrate-closeout','orchestrate-use-case') and len(sys.argv)==2)):write(FINAL,dict(passed=False,status='invalid_invocation'))
 if mode in ('orchestrate','orchestrate-closeout','orchestrate-use-case') and len(sys.argv)==2:
     if FINAL.exists():
         previous=json.loads(FINAL.read_text())
-        if previous.get('error'):
+        if retain_attempt(previous):
             folder=ROOT/('evidence/use-case-attempts' if mode=='orchestrate-use-case' else ('evidence/closeout-attempts' if mode=='orchestrate-closeout' else 'evidence/deployment-attempts'));folder.mkdir(exist_ok=True)
             write(folder/('attempt-'+uuid.uuid4().hex[:12]+'.json'),previous)
     def terminated(*_):raise InterruptedError('orchestrator_terminated')
@@ -108,7 +109,10 @@ if mode in ('orchestrate','orchestrate-closeout','orchestrate-use-case') and len
             result['orchestrator_cleanup']=True
         except Exception as error:result['passed']=False;result['cleanup_error']=type(error).__name__+': '+str(error)
         write(FINAL,result)
-        if os.getuid()==0:os.chown(FINAL,501,501);os.chown(FINAL.with_suffix('.html'),501,501)
+        if os.getuid()==0:
+            owner=ROOT.stat() if mode=='orchestrate-use-case' else None
+            uid,gid=(owner.st_uid,owner.st_gid) if owner else (501,501)
+            os.chown(FINAL,uid,gid);os.chown(FINAL.with_suffix('.html'),uid,gid)
     sys.exit(0 if result['passed'] else 1)
 if mode!='worker' or len(sys.argv)!=4:raise SystemExit('Usage: deployment.py orchestrate in disposable systemd VM')
 ns=sys.argv[3];out=Path(sys.argv[2]);server=None

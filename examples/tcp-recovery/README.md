@@ -2,8 +2,8 @@
 
 The three files in [package/](package/) are byte-for-byte copies of the actual
 product package from the successful use-case VM run. They were not fabricated or
-rewritten for presentation. [Verification JSON](../../evidence/use-case.json) and
-[HTML](../../evidence/use-case.html) contain their hashes and lengths.
+rewritten for presentation. [Verification JSON](../../evidence/use-case-original.json) and
+[HTML](../../evidence/use-case-original.html) contain their hashes and lengths.
 
 - [snapshot.json](package/snapshot.json): fixed incident and allowlisted observations.
 - [index.html](package/index.html): the same JSON escaped into HTML; download/open
@@ -28,3 +28,8 @@ The raw CLI trace, store and archive receipt were not copied here. The retained
 package is an independent copy: managed package retirement and explicit raw
 incident deletion do not revoke this copy or release request-history slots.
 See [the complete walkthrough](../../docs/USE_CASE.md) to reproduce the flow.
+
+The 2026-11-01 review kept these three files unchanged and strengthened the
+checker with decoded-value, route-context and exact-HTML checks. Current
+review-run evidence is separate in evidence/use-case.json; it is not substituted
+for the original report that binds this particular sample.

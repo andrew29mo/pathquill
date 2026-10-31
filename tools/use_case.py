@@ -2,7 +2,7 @@
 import datetime,hashlib,ipaddress,json,os,platform,shutil,socket,subprocess,sys,time,uuid
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from tools.use_case_checks import verify_package
+from tools.use_case_checks import verify_package,private_outputs
 PY='/opt/pathquill/venv/bin/python';UNIT='pathquill.service';STATE='/var/lib/pathquill/store'
 def check(v,message):
     if not v:raise RuntimeError(message)
@@ -15,10 +15,7 @@ def ctl(*args):return run(['systemctl',*args]).stdout.strip()
 def prop(name):return ctl('show',UNIT,'--property='+name,'--value')
 if len(sys.argv)!=4 or sys.argv[1]!='worker':raise SystemExit('Use deployment.py orchestrate-use-case in a disposable Linux VM')
 out=Path(sys.argv[2]);ns=sys.argv[3];listener=None
-work=ROOT/'results/use-case/runs'/uuid.uuid4().hex;work.mkdir(mode=0o700,parents=True)
-# On the mounted checkout, keep local private records readable by its owner only.
-os.chown(work,501,501)
-trace=work/'private-cli.jsonl';trace.touch(mode=0o600);os.chown(trace,501,501)
+work,trace,output_owner=private_outputs(ROOT)
 report=dict(passed=False,cases=[],steps=[],environment=dict(system=platform.system(),release=platform.release(),python=platform.python_version(),utc=datetime.datetime.now(datetime.timezone.utc).isoformat()),boundaries=['Existing isolated Colima Linux VM, fresh application paths; not a clean OS install','Actual installed wheel/systemd/CLI, explicit namespace fixture; no synthetic seeded incident or alternate recorder','One local IPv4 TCP refusal/recovery; not WAN, DNS, load or long-term qualification','No VM reboot, power loss, autostart or zero-gap boot test','Raw CLI/store/archive data remain private; public bytes are checked fixture output, not universal anonymity proof'])
 phase='setup';start=time.monotonic();private_values=set()
 class NotReady(Exception):pass
@@ -72,6 +69,14 @@ try:
         private_values.add(row['ifname']) if row['ifname']!='lo' else None
         for address in row['addr_info']:
             ip=ipaddress.ip_address(address['local']);private_values.update((str(ip),ip.packed.hex()))
+    # Include route destinations (including non-interface subnets), gateways and preferred sources.
+    for family in ('-4','-6'):
+        for route in json.loads(run(['ip','-n',ns,'-j',family,'route','show','table','all']).stdout):
+            for key in ('dst','gateway','prefsrc'):
+                value=route.get(key)
+                if value and value!='default':
+                    ip=ipaddress.ip_interface(value).ip if '/' in value else ipaddress.ip_address(value)
+                    private_values.update((str(ip),ip.packed.hex()))
     config=Path('/etc/pathquill/config.json');config.write_text(json.dumps([dict(host='198.18.0.1',port=29871,timeout=.2,interval=.5)]));os.chmod(config,0o640)
     drop=Path('/etc/systemd/system/pathquill.service.d');drop.mkdir();(drop/'namespace.conf').write_text('[Service]\nNetworkNamespacePath=/run/netns/'+ns+'\n');ctl('daemon-reload');listen();ctl('start',UNIT)
     first=wait(lambda v:v['state']=='RECORDING' and v['health'].get('0')=='success');identity=(prop('MainPID'),prop('InvocationID'));authority=dict(store=first['store_id'],epoch=first['epoch']);private_values.update(authority.values());step('healthy_installed_service',unprivileged_uid=int(run(['id','-u','pathquill']).stdout))
@@ -83,9 +88,9 @@ try:
     phase='export';published,package=export(source,'incident_demo',authority);files={p.name:p.read_bytes() for p in package.iterdir()};private_values.add(published['package'])
     proof=verify_package(files,private_values)
     # Copy exactly the actual verified product package. Raw CLI is a separate private file.
-    copied=work/'public-package';copied.mkdir(mode=0o700);os.chown(copied,501,501)
+    copied=work/'public-package';copied.mkdir(mode=0o700);os.chown(copied,*output_owner)
     for name,data in files.items():
-        p=copied/name;p.write_bytes(data);p.chmod(0o600);os.chown(p,501,501)
+        p=copied/name;p.write_bytes(data);p.chmod(0o600);os.chown(p,*output_owner)
     check(verify_package({p.name:p.read_bytes() for p in copied.iterdir()},private_values)==proof,'copy_changed')
     step('published_and_copy_verified',**proof);report['sample']=dict(directory=str(copied.relative_to(ROOT)),**proof)
     check((prop('MainPID'),prop('InvocationID'))==identity,'service_restarted_before_export')

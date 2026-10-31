@@ -31,8 +31,9 @@ VM demonstration, the [actual copied product package](examples/tcp-recovery/READ
 and [JSON](evidence/use-case.json) / [HTML](evidence/use-case.html) verification.
 The flow covers failure/recovery, copy-before-retirement, raw capture reclamation,
 32-slot refusal, manual seal/archive/new-store handoff and new real work.
-The new demonstration passed 115 source tests; historical 111-test/330-second
-records retain their original scope. Production runtime code is unchanged.
+The original demonstration passed 115 source tests. The reviewed run passed
+123 tests; see [review corrections and evidence](docs/USE_CASE_REVIEW.md). Historical 111-test/330-second records retain their
+original scope. Production runtime code is unchanged.
 
 ## Reproduce
 
